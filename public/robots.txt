@@ -17,4 +17,4 @@ Allow: /
 Disallow: /api/
 Disallow: /r/
 
-Sitemap: https://citeready.app/sitemap.xml
+Sitemap: https://citeready-app.pages.dev/sitemap.xml

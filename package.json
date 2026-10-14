@@ -5,17 +5,19 @@
   "description": "Fix-first AI search audits for small agencies",
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
+    "dev": "npm run build && wrangler pages dev --port 8787",
+    "deploy": "npm run build && wrangler pages deploy --project-name citeready-app --branch main",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "audit": "node --experimental-strip-types scripts/audit-cli.ts"
+    "audit": "node --experimental-strip-types scripts/audit-cli.ts",
+    "build": "node scripts/build.mjs"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20261006.1",
     "typescript": "^5.6.0",
     "vitest": "^2.1.0",
-    "wrangler": "^4.0.0"
+    "wrangler": "^4.0.0",
+    "esbuild": "^0.28.0"
   },
   "allowScripts": {
     "esbuild@0.21.5": true,

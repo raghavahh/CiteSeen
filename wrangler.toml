@@ -1,24 +1,17 @@
-name = "citeready"
-main = "src/index.ts"
+# Cloudflare Pages project (https://citeready-app.pages.dev).
+# `npm run build` copies public/ to dist/ and bundles src/index.ts into dist/_worker.js,
+# which Pages runs for every request; static files are served through env.ASSETS.
+name = "citeready-app"
+pages_build_output_dir = "./dist"
 compatibility_date = "2025-09-01"
 compatibility_flags = ["nodejs_compat"]
 
-# Static site (landing, results, free tools, legal pages).
-# The Worker runs first only for the routes listed below; everything else is served from public/.
-[assets]
-directory = "./public"
-binding = "ASSETS"
-not_found_handling = "404-page"
-run_worker_first = ["/api/*", "/r/*"]
-
 # Shared audit results (30-day TTL), waitlist signups and per-IP rate-limit counters.
-# Create with:  npx wrangler kv namespace create CITEREADY_KV
-# then paste the id below.
 [[kv_namespaces]]
 binding = "KV"
 id = "f8ed2f2708cb48c58eaaf4a914776593"
 
 [vars]
-SITE_URL = "https://citeready.app"
+SITE_URL = "https://citeready-app.pages.dev"
 # Max audits per IP per hour
 RATE_LIMIT_PER_HOUR = "30"

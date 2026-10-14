@@ -124,13 +124,13 @@ describe("full audit", () => {
     vi.stubGlobal(
       "fetch",
       mockFetch({
-        "https://citeready.app/": { body: pub("index.html") },
-        "https://citeready.app/robots.txt": { body: pub("robots.txt"), headers: { "content-type": "text/plain" } },
-        "https://citeready.app/sitemap.xml": { body: pub("sitemap.xml"), headers: { "content-type": "application/xml" } },
-        "https://citeready.app/llms.txt": { body: pub("llms.txt"), headers: { "content-type": "text/plain" } },
+        "https://citeready-app.pages.dev/": { body: pub("index.html") },
+        "https://citeready-app.pages.dev/robots.txt": { body: pub("robots.txt"), headers: { "content-type": "text/plain" } },
+        "https://citeready-app.pages.dev/sitemap.xml": { body: pub("sitemap.xml"), headers: { "content-type": "application/xml" } },
+        "https://citeready-app.pages.dev/llms.txt": { body: pub("llms.txt"), headers: { "content-type": "text/plain" } },
       }),
     );
-    const r = await runAudit("citeready.app");
+    const r = await runAudit("citeready-app.pages.dev");
     const lost = r.checks.filter((c) => c.earned < c.points).map((c) => `${c.id}: ${c.summary}`);
     // sameAs needs real social profile URLs, which only the owner can add.
     expect(lost).toEqual([expect.stringMatching(/^same-as/)]);

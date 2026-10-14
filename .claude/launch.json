@@ -4,7 +4,7 @@
     {
       "name": "citeready",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["wrangler", "dev", "--port", "8787"],
+      "runtimeArgs": ["wrangler", "pages", "dev", "--port", "8787"],
       "port": 8787
     }
   ]

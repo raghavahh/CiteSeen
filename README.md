@@ -8,24 +8,28 @@ This repo is **v0.1 (week 1)**: the free audit, a shareable result link, early-a
 
 ```bash
 npm install
-npm run dev          # http://localhost:8787 (local KV is simulated)
+npm run dev          # builds, then serves http://localhost:8787 (local KV is simulated)
 npm test             # 23 engine tests, including our own site's score
 npm run typecheck
 npm run audit -- example.com   # audit any site from the terminal
 ```
 
-## Deploy (Cloudflare Workers, free tier)
+## Deploy (Cloudflare Pages, free tier)
 
-1. `npx wrangler login`
-2. `npx wrangler kv namespace create CITEREADY_KV`, then paste the id into `wrangler.toml`.
-3. `npm run deploy`
-4. Attach your domain in the Cloudflare dashboard (Workers → citeready → Settings → Domains).
+Live at **https://citeready-app.pages.dev** (Pages project `citeready-app`, KV namespace `CITEREADY_KV`).
+
+```bash
+npx wrangler login     # once
+npm run deploy         # builds dist/ (static files + _worker.js) and deploys to Pages
+```
+
+`npm run build` copies `public/` to `dist/` and bundles `src/index.ts` into `dist/_worker.js`, which Pages runs for every request. To use your own domain later: Cloudflare dashboard → Workers & Pages → citeready-app → Custom domains.
 
 ## Before launch: things only you can do
 
 | What | Where |
 | --- | --- |
-| Final domain. Replace `citeready.app` everywhere | all files in `public/`, `src/audit/bots.ts` (`CITEREADY_UA`), `wrangler.toml` |
+| Own domain (optional). Links currently use `citeready-app.pages.dev` | all files in `public/`, `src/audit/bots.ts` (`CITEREADY_UA`), `wrangler.toml` |
 | Contact email. `hello@citeready.app` is a placeholder | `public/contact.html`, `privacy.html`, `terms.html`, `refunds.html`, `llms.txt` |
 | Social profile URLs in `sameAs` (worth the last 5 points) | `public/index.html` Organization JSON-LD |
 | Have the privacy, terms and refund pages reviewed | `public/privacy.html`, `terms.html`, `refunds.html` |
