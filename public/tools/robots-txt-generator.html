@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI-Ready robots.txt Generator (ChatGPT, Perplexity, Claude) | CiteReady</title>
+<meta name="description" content="Generate a robots.txt that lets ChatGPT, Perplexity, Claude and Google AI search your site, while you choose whether to allow AI training bots.">
+<link rel="canonical" href="https://citeready.app/tools/robots-txt-generator">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CiteReady">
+<meta property="og:title" content="AI-Ready robots.txt Generator">
+<meta property="og:description" content="Allow AI search bots, choose what to do with training bots, keep your private paths.">
+<meta property="og:image" content="https://citeready.app/og.png">
+<meta property="og:url" content="https://citeready.app/tools/robots-txt-generator">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="/assets/style.css">
+<script type="application/ld+json">
+{ "@context": "https://schema.org", "@type": "WebApplication", "name": "AI-Ready robots.txt Generator", "url": "https://citeready.app/tools/robots-txt-generator", "applicationCategory": "DeveloperApplication", "operatingSystem": "Web", "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }, "publisher": { "@type": "Organization", "name": "CiteReady", "url": "https://citeready.app/" }, "dateModified": "2026-10-14" }
+</script>
+<style>
+  .gen { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+  @media (max-width: 860px) { .gen { grid-template-columns: 1fr; } }
+  .botlist label { display: flex; gap: 10px; align-items: flex-start; font-weight: 500; margin: 6px 0; }
+  .botlist input { margin-top: 5px; }
+  .botlist .small { display: block; }
+  fieldset { border: 0; padding: 0; margin: 0 0 18px; }
+  legend { font-weight: 700; margin-bottom: 6px; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .seg label { margin: 0; padding: 6px 12px; cursor: pointer; font-weight: 600; font-size: 0.88rem; }
+  .seg input { position: absolute; opacity: 0; }
+  .seg input:checked + span { color: var(--brand); }
+  .seg label:has(input:checked) { background: var(--brand-soft); }
+  .sticky { position: sticky; top: 76px; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="wrap">
+  <a class="logo" href="/" aria-label="CiteReady home"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#3346d3"/><path d="M8 9.5h16v10.5h-8l-4.5 4v-4H8z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M12.2 14.8l2.4 2.4 4.8-4.8" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>CiteReady</a>
+  <nav class="nav"><a href="/tools/">Free tools</a><a class="hide-sm" href="/#pricing">Pricing</a><a class="btn sm" href="/#audit">Run free audit</a></nav>
+</div></header>
+<main class="wrap">
+  <div class="hero" style="padding-bottom:16px">
+    <span class="eyebrow">Free tool</span>
+    <h1>AI-ready robots.txt generator</h1>
+    <p class="lede">Build a robots.txt that lets AI search engines find and cite your site, keeps your private paths private, and makes your own choice about AI training bots.</p>
+    <form class="url-form" id="f" novalidate>
+      <label for="url" class="sr-only">Website address (optional)</label>
+      <input id="url" name="url" type="text" inputmode="url" placeholder="Load from your site: example.com (optional)">
+      <button class="btn secondary" type="submit">Load current robots.txt</button>
+    </form>
+    <div class="form-error" id="form-error" role="alert"></div>
+    <div class="loader" id="loader"><span class="spinner"></span><span data-text>Loading…</span></div>
+  </div>
+
+  <div class="gen">
+    <div class="card">
+      <fieldset class="botlist" id="search-bots"><legend>AI search and answer bots</legend><p class="small muted">Allow these to appear in AI answers.</p></fieldset>
+      <fieldset>
+        <legend>AI training bots</legend>
+        <p class="small muted">Blocking these doesn't remove you from AI search. It's a business choice.</p>
+        <div class="seg" role="radiogroup">
+          <label><input type="radio" name="training" value="allow" checked><span>Allow training</span></label>
+          <label><input type="radio" name="training" value="block"><span>Block training</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend><label for="private" style="margin:0">Private paths (one per line)</label></legend>
+        <textarea id="private" style="min-height:90px" placeholder="/admin/&#10;/cart&#10;/checkout"></textarea>
+      </fieldset>
+      <fieldset>
+        <legend><label for="sitemap" style="margin:0">Sitemap URL</label></legend>
+        <input id="sitemap" type="text" placeholder="https://example.com/sitemap.xml">
+      </fieldset>
+    </div>
+    <div class="sticky">
+      <div class="code"><div class="where">robots.txt (upload to the root of your site)</div><button class="btn sm copy" type="button" data-copy>Copy</button><pre><code id="output"></code></pre></div>
+      <p class="small muted">After uploading, check it with the <a href="/tools/ai-crawler-checker">AI crawler checker</a>.</p>
+    </div>
+  </div>
+
+  <section class="narrow">
+    <h2>What should an AI-ready robots.txt contain?</h2>
+    <p>An AI-ready robots.txt explicitly allows the crawlers that power AI answers: OAI-SearchBot and ChatGPT-User (ChatGPT), PerplexityBot, Claude-SearchBot, Googlebot (AI Overviews) and Bingbot (Copilot). It still disallows private paths like admin or checkout pages and points to your sitemap.</p>
+    <ul>
+      <li>A crawler obeys only the most specific group that names it. If you add a group for OAI-SearchBot, it ignores the <code>User-agent: *</code> rules, so we copy your private paths into each group.</li>
+      <li>Training bots like GPTBot and Google-Extended can be blocked without affecting AI search visibility.</li>
+      <li>Firewalls can block bots even when robots.txt allows them. Test with the crawler checker after uploading.</li>
+    </ul>
+    <p class="updated">Last updated: <time datetime="2026-10-14">14 October 2026</time></p>
+  </section>
+  <div class="cta-band"><h2 style="font-size:1.3rem">Is robots.txt the only problem?</h2><p class="muted">Run the full audit to check firewall behaviour, JavaScript rendering, schema and more.</p><a class="btn" href="/#audit">Run the full audit</a></div>
+</main>
+<footer class="site-footer"><div class="wrap"><div class="cols">
+  <div><a class="logo" href="/">CiteReady</a><p class="small" style="margin-top:10px">Fix-first AI search audits for small agencies.</p><p class="small">© <span data-year>2026</span> CiteReady</p></div>
+  <div><h4>Product</h4><ul><li><a href="/#audit">Free audit</a></li><li><a href="/#pricing">Pricing</a></li></ul></div>
+  <div><h4>Free tools</h4><ul><li><a href="/tools/ai-crawler-checker">AI crawler checker</a></li><li><a href="/tools/robots-txt-generator">robots.txt generator</a></li><li><a href="/tools/llms-txt-generator">llms.txt generator</a></li><li><a href="/tools/what-ai-bots-see">What AI bots see</a></li></ul></div>
+  <div><h4>Company</h4><ul><li><a href="/about">About</a></li><li><a href="/contact">Contact</a></li><li><a href="/privacy">Privacy</a></li><li><a href="/terms">Terms</a></li></ul></div>
+</div></div></footer>
+<script src="/assets/app.js"></script>
+<script>
+(async function () {
+  const esc = CR.esc;
+  let bots = [];
+  try { bots = await CR.get("/api/bots"); } catch { bots = []; }
+  const searchBox = document.getElementById("search-bots");
+  bots.filter((b) => b.kind !== "training").forEach((b) => {
+    searchBox.insertAdjacentHTML("beforeend", `<label><input type="checkbox" data-bot="${esc(b.token)}" checked><span>${esc(b.token)} <span class="small muted">${esc(b.owner)}: ${esc(b.purpose)}</span></span></label>`);
+  });
+  const $ = (id) => document.getElementById(id);
+  let host = "";
+
+  function generate() {
+    const allowed = [...document.querySelectorAll("[data-bot]")].filter((i) => i.checked).map((i) => i.dataset.bot);
+    const blockedSearch = [...document.querySelectorAll("[data-bot]")].filter((i) => !i.checked).map((i) => i.dataset.bot);
+    const training = document.querySelector("input[name=training]:checked").value;
+    const priv = $("private").value.split(/\r?\n/).map((s) => s.trim()).filter((s) => s && s.startsWith("/"));
+    const sitemap = $("sitemap").value.trim();
+    const L = [`# Generated by CiteReady${host ? " for " + host : ""} – https://citeready.app/tools/robots-txt-generator`, ""];
+    if (allowed.length) {
+      L.push("# AI search and answer bots: allowed, so this site can appear in AI answers.");
+      allowed.forEach((t) => L.push("User-agent: " + t));
+      L.push("Allow: /");
+      priv.forEach((p) => L.push("Disallow: " + p));
+      L.push("");
+    }
+    if (blockedSearch.length) {
+      L.push("# Blocked AI search bots (this removes you from their answers)");
+      blockedSearch.forEach((t) => L.push("User-agent: " + t));
+      L.push("Disallow: /", "");
+    }
+    const trainingBots = bots.filter((b) => b.kind === "training").map((b) => b.token);
+    if (training === "block") {
+      L.push("# AI training bots: blocked. This does not affect AI search visibility.");
+      trainingBots.forEach((t) => L.push("User-agent: " + t));
+      L.push("Disallow: /", "");
+    } else {
+      L.push("# AI training bots: allowed (covered by the * group below).", "");
+    }
+    L.push("# All other crawlers", "User-agent: *");
+    if (priv.length) priv.forEach((p) => L.push("Disallow: " + p));
+    else L.push("Allow: /");
+    if (sitemap) L.push("", "Sitemap: " + sitemap);
+    $("output").textContent = L.join("\n") + "\n";
+  }
+
+  document.addEventListener("input", generate);
+  document.addEventListener("change", generate);
+  generate();
+
+  CR.wireUrlForm(document.getElementById("f"), {
+    endpoint: "/api/tools/robots",
+    render(d) {
+      host = new URL(d.origin).hostname;
+      // Pull private paths from the "*" group of the existing file
+      const lines = d.body.split(/\r?\n/);
+      const priv = [];
+      let inStar = false, lastAgent = false;
+      for (const raw of lines) {
+        const line = raw.replace(/#.*/, "").trim();
+        const m = line.match(/^([A-Za-z-]+)\s*:\s*(.*)$/);
+        if (!m) continue;
+        const k = m[1].toLowerCase(), v = m[2].trim();
+        if (k === "user-agent") { if (!lastAgent) inStar = false; if (v === "*") inStar = true; lastAgent = true; continue; }
+        lastAgent = false;
+        if (inStar && k === "disallow" && v && v !== "/" && v !== "/*") priv.push(v);
+      }
+      $("private").value = [...new Set(priv)].join("\n");
+      $("sitemap").value = d.sitemaps[0] || d.origin + "/sitemap.xml";
+      document.getElementById("form-error").textContent = d.present ? "" : "No robots.txt found on that site. Starting from scratch.";
+      generate();
+    },
+  });
+})();
+</script>
+</body>
+</html>

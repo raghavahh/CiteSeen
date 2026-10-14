@@ -1,0 +1,25 @@
+{
+  "name": "citeready",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Fix-first AI search audits for small agencies",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "audit": "node --experimental-strip-types scripts/audit-cli.ts"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261006.1",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0",
+    "wrangler": "^4.0.0"
+  },
+  "allowScripts": {
+    "esbuild@0.21.5": true,
+    "esbuild@0.28.2": true,
+    "workerd@1.20261012.1": true
+  }
+}

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What AI Bots See: View Your Page Without JavaScript | CiteReady</title>
+<meta name="description" content="See your web page the way ChatGPT and Perplexity crawlers see it: raw HTML, no JavaScript. Find content that's invisible to AI search.">
+<link rel="canonical" href="https://citeready.app/tools/what-ai-bots-see">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CiteReady">
+<meta property="og:title" content="What AI Bots See: Your Page Without JavaScript">
+<meta property="og:description" content="View any page the way AI crawlers see it: raw HTML, no JavaScript.">
+<meta property="og:image" content="https://citeready.app/og.png">
+<meta property="og:url" content="https://citeready.app/tools/what-ai-bots-see">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="/assets/style.css">
+<script type="application/ld+json">
+{ "@context": "https://schema.org", "@type": "WebApplication", "name": "What AI Bots See", "url": "https://citeready.app/tools/what-ai-bots-see", "applicationCategory": "DeveloperApplication", "operatingSystem": "Web", "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }, "publisher": { "@type": "Organization", "name": "CiteReady", "url": "https://citeready.app/" }, "dateModified": "2026-10-14" }
+</script>
+</head>
+<body>
+<header class="site-header"><div class="wrap">
+  <a class="logo" href="/" aria-label="CiteReady home"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#3346d3"/><path d="M8 9.5h16v10.5h-8l-4.5 4v-4H8z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M12.2 14.8l2.4 2.4 4.8-4.8" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>CiteReady</a>
+  <nav class="nav"><a href="/tools/">Free tools</a><a class="hide-sm" href="/#pricing">Pricing</a><a class="btn sm" href="/#audit">Run free audit</a></nav>
+</div></header>
+<main class="wrap">
+  <div class="hero" style="padding-bottom:16px">
+    <span class="eyebrow">Free tool</span>
+    <h1>What do AI bots see on your page?</h1>
+    <p class="lede">Most AI crawlers read raw HTML and never run JavaScript. This tool fetches a page as OAI-SearchBot does and shows the text, headings and schema it gets.</p>
+    <form class="url-form" id="f" novalidate>
+      <label for="url" class="sr-only">Page address</label>
+      <input id="url" name="url" type="text" inputmode="url" placeholder="example.com/pricing" required>
+      <button class="btn" type="submit">Show me</button>
+    </form>
+    <div class="form-error" id="form-error" role="alert"></div>
+    <div class="loader" id="loader"><span class="spinner"></span><span data-text>Fetching as an AI bot…</span></div>
+  </div>
+  <div id="out"></div>
+
+  <section class="narrow">
+    <h2>Why does JavaScript hide content from AI search?</h2>
+    <p>Google renders JavaScript, but most AI crawlers, including those behind ChatGPT search, Perplexity and Claude, read the HTML your server sends and stop there. If your text is added later by React, Vue or a page builder's scripts, these crawlers see an empty shell and have nothing to cite.</p>
+    <h2>How do I fix a page that looks empty here?</h2>
+    <ul>
+      <li>Turn on server-side rendering or static generation in your framework (Next.js, Nuxt, Astro, SvelteKit, Angular SSR).</li>
+      <li>On a client-only React or Vue app, prerender your public pages at build time.</li>
+      <li>In page builders, move key text out of embeds, iframes and images into normal text blocks.</li>
+    </ul>
+    <p class="updated">Last updated: <time datetime="2026-10-14">14 October 2026</time></p>
+  </section>
+  <div class="cta-band"><h2 style="font-size:1.3rem">Get the full picture</h2><p class="muted">The full audit scores rendering alongside crawler access, schema and quotability, with copy-paste fixes.</p><a class="btn" href="/#audit">Run the full audit</a></div>
+</main>
+<footer class="site-footer"><div class="wrap"><div class="cols">
+  <div><a class="logo" href="/">CiteReady</a><p class="small" style="margin-top:10px">Fix-first AI search audits for small agencies.</p><p class="small">© <span data-year>2026</span> CiteReady</p></div>
+  <div><h4>Product</h4><ul><li><a href="/#audit">Free audit</a></li><li><a href="/#pricing">Pricing</a></li></ul></div>
+  <div><h4>Free tools</h4><ul><li><a href="/tools/ai-crawler-checker">AI crawler checker</a></li><li><a href="/tools/robots-txt-generator">robots.txt generator</a></li><li><a href="/tools/llms-txt-generator">llms.txt generator</a></li><li><a href="/tools/what-ai-bots-see">What AI bots see</a></li></ul></div>
+  <div><h4>Company</h4><ul><li><a href="/about">About</a></li><li><a href="/contact">Contact</a></li><li><a href="/privacy">Privacy</a></li><li><a href="/terms">Terms</a></li></ul></div>
+</div></div></footer>
+<script src="/assets/app.js"></script>
+<script>
+CR.wireUrlForm(document.getElementById("f"), {
+  endpoint: "/api/tools/raw",
+  render(d) {
+    const esc = CR.esc;
+    const verdict = d.challenge || d.status >= 400
+      ? `<div class="notice err">The bot got status ${d.status}${d.challenge ? " and a bot-challenge page" : ""}. AI crawlers may be blocked. <a href="/tools/ai-crawler-checker?url=${encodeURIComponent(d.url)}">Check crawler access →</a></div>`
+      : d.wordCount < 50
+      ? `<div class="notice err"><strong>This page looks almost empty to AI bots (${d.wordCount} words).</strong> ${d.emptyAppRoot ? "The content is rendered by JavaScript into an empty container." : "Most of the content probably loads with JavaScript."}</div>`
+      : d.wordCount < 150
+      ? `<div class="notice">Only ${d.wordCount} words are visible without JavaScript. Some content may be missing.</div>`
+      : `<div class="notice ok">AI bots can read this page: ${d.wordCount} words in the raw HTML.</div>`;
+    const heads = d.headings.length ? `<ul class="evidence">${d.headings.map((h) => `<li>${"&nbsp;".repeat((h.level - 1) * 2)}H${h.level}: ${esc(h.text)}</li>`).join("")}</ul>` : `<p class="muted small">No headings found.</p>`;
+    document.getElementById("out").innerHTML = `${verdict}
+      <div class="grid-2" style="margin-top:16px">
+        <div class="card"><h2 style="font-size:1.15rem">Page facts</h2><dl class="kv">
+          <dt>URL</dt><dd>${esc(d.url)}</dd><dt>Status</dt><dd>${d.status}</dd><dt>Title</dt><dd>${esc(d.title) || "<em>none</em>"}</dd>
+          <dt>Description</dt><dd>${esc(d.description) || "<em>none</em>"}</dd><dt>Language</dt><dd>${esc(d.lang) || "<em>not set</em>"}</dd>
+          <dt>Words</dt><dd>${d.wordCount}</dd><dt>Links</dt><dd>${d.links}</dd><dt>Images</dt><dd>${d.images} (${d.imagesWithoutAlt} without alt text)</dd>
+          <dt>Scripts</dt><dd>${d.scripts}</dd><dt>Schema</dt><dd>${d.schemaTypes.length ? esc(d.schemaTypes.join(", ")) : "<em>none</em>"}</dd>
+        </dl></div>
+        <div class="card"><h2 style="font-size:1.15rem">Headings</h2>${heads}</div>
+      </div>
+      <div class="card" style="margin-top:16px"><h2 style="font-size:1.15rem">Text the bot reads</h2><p class="small muted">Fetched as: ${esc(d.userAgent)}</p><div class="raw-text">${esc(d.text) || "<em>No text at all.</em>"}</div></div>`;
+  },
+});
+</script>
+</body>
+</html>

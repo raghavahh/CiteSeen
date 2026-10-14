@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Crawler Checker – Is My Site Blocked by ChatGPT? | CiteReady</title>
+<meta name="description" content="Free check: is your website blocked by ChatGPT, Perplexity, Claude or Google AI? Tests robots.txt and your firewall with real AI-bot user agents.">
+<link rel="canonical" href="https://citeready.app/tools/ai-crawler-checker">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CiteReady">
+<meta property="og:title" content="AI Crawler Checker – Is My Site Blocked by ChatGPT?">
+<meta property="og:description" content="Test robots.txt and your firewall against ChatGPT, Perplexity, Claude and Google AI crawlers.">
+<meta property="og:image" content="https://citeready.app/og.png">
+<meta property="og:url" content="https://citeready.app/tools/ai-crawler-checker">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="/assets/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    { "@type": "WebApplication", "name": "AI Crawler Checker", "url": "https://citeready.app/tools/ai-crawler-checker", "applicationCategory": "DeveloperApplication", "operatingSystem": "Web", "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }, "publisher": { "@type": "Organization", "name": "CiteReady", "url": "https://citeready.app/" }, "dateModified": "2026-10-14" },
+    { "@type": "FAQPage", "mainEntity": [
+      { "@type": "Question", "name": "Is my site blocked by ChatGPT?", "acceptedAnswer": { "@type": "Answer", "text": "Your site is blocked from ChatGPT search if robots.txt disallows OAI-SearchBot or ChatGPT-User, or if a firewall or CDN rejects their requests. This tool tests both." } },
+      { "@type": "Question", "name": "What is the difference between OAI-SearchBot and GPTBot?", "acceptedAnswer": { "@type": "Answer", "text": "OAI-SearchBot indexes pages for ChatGPT search answers. GPTBot collects data to train OpenAI models. You can block GPTBot and still appear in ChatGPT search." } }
+    ] }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header"><div class="wrap">
+  <a class="logo" href="/" aria-label="CiteReady home"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#3346d3"/><path d="M8 9.5h16v10.5h-8l-4.5 4v-4H8z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M12.2 14.8l2.4 2.4 4.8-4.8" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>CiteReady</a>
+  <nav class="nav"><a href="/tools/">Free tools</a><a class="hide-sm" href="/#pricing">Pricing</a><a class="btn sm" href="/#audit">Run free audit</a></nav>
+</div></header>
+<main class="wrap">
+  <div class="hero" style="padding-bottom:16px">
+    <span class="eyebrow">Free tool</span>
+    <h1>Is my site blocked by ChatGPT?</h1>
+    <p class="lede">Check whether ChatGPT, Perplexity, Claude, Google and Bing can crawl a page. We read robots.txt for 15 AI bots and send live test requests with real AI-bot user agents to catch firewall and CDN blocks.</p>
+    <form class="url-form" id="f" novalidate>
+      <label for="url" class="sr-only">Website address</label>
+      <input id="url" name="url" type="text" inputmode="url" placeholder="example.com" required>
+      <button class="btn" type="submit">Check crawlers</button>
+    </form>
+    <div class="form-error" id="form-error" role="alert"></div>
+    <div class="loader" id="loader"><span class="spinner"></span><span data-text>Testing AI crawlers…</span></div>
+  </div>
+  <div id="out"></div>
+
+  <section class="narrow faq">
+    <h2>How does the AI crawler check work?</h2>
+    <p>We fetch your robots.txt and apply the same matching rules crawlers use (RFC 9309: the most specific user-agent group wins, then the longest matching path). Then we request your page as a normal browser and as four AI bots and compare the responses. A 403, a challenge page or much less content means a <strong>possible</strong> firewall block.</p>
+    <h2>Which AI bots should I allow?</h2>
+    <ul>
+      <li><strong>Search and answer bots</strong> (OAI-SearchBot, ChatGPT-User, PerplexityBot, Claude-SearchBot, Googlebot, Bingbot): allow these if you want to appear in AI answers.</li>
+      <li><strong>Training bots</strong> (GPTBot, ClaudeBot, CCBot, Google-Extended): your choice. Blocking them doesn't remove you from AI search.</li>
+    </ul>
+    <details><summary><h3>What is the difference between OAI-SearchBot and GPTBot?</h3></summary><p>OAI-SearchBot indexes pages for ChatGPT search answers. GPTBot collects data to train OpenAI models. You can block GPTBot and still appear in ChatGPT search.</p></details>
+    <details><summary><h3>Why does it say "possible block"?</h3></summary><p>Some firewalls verify real crawlers by IP address. Our test request comes from our servers, so it can be blocked while the real crawler gets through. Confirm by searching your firewall or server logs for the bot's user agent.</p></details>
+    <p class="updated">Last updated: <time datetime="2026-10-14">14 October 2026</time></p>
+  </section>
+  <div class="cta-band"><h2 style="font-size:1.3rem">Crawler access is only 22 of 100 points</h2><p class="muted">The full audit also checks JavaScript rendering, schema, structure and quotability, with copy-paste fixes.</p><a class="btn" id="full" href="/#audit">Run the full audit</a></div>
+</main>
+<footer class="site-footer"><div class="wrap"><div class="cols">
+  <div><a class="logo" href="/">CiteReady</a><p class="small" style="margin-top:10px">Fix-first AI search audits for small agencies.</p><p class="small">© <span data-year>2026</span> CiteReady</p></div>
+  <div><h4>Product</h4><ul><li><a href="/#audit">Free audit</a></li><li><a href="/#pricing">Pricing</a></li></ul></div>
+  <div><h4>Free tools</h4><ul><li><a href="/tools/ai-crawler-checker">AI crawler checker</a></li><li><a href="/tools/robots-txt-generator">robots.txt generator</a></li><li><a href="/tools/llms-txt-generator">llms.txt generator</a></li><li><a href="/tools/what-ai-bots-see">What AI bots see</a></li></ul></div>
+  <div><h4>Company</h4><ul><li><a href="/about">About</a></li><li><a href="/contact">Contact</a></li><li><a href="/privacy">Privacy</a></li><li><a href="/terms">Terms</a></li></ul></div>
+</div></div></footer>
+<script src="/assets/app.js"></script>
+<script>
+CR.wireUrlForm(document.getElementById("f"), {
+  endpoint: "/api/tools/crawlers",
+  render(d) {
+    const esc = CR.esc;
+    const kindName = { search: "AI search", user: "User-triggered", training: "Training" };
+    const order = ["search", "user", "training"];
+    const rows = order.flatMap((k) => d.bots.filter((b) => b.kind === k)).map((b) => {
+      const live = b.live ? (b.live.possibleBlock ? `<span class="pill warn">Possible block</span> <span class="small muted">${b.live.error ? esc(b.live.error) : "status " + b.live.status + (b.live.challenge ? ", challenge page" : "")}</span>` : `<span class="pill pass">OK</span> <span class="small muted">status ${b.live.status}</span>`) : `<span class="small muted">not tested</span>`;
+      const robots = b.allowed ? `<span class="pill pass">Allowed</span>` : `<span class="pill ${b.kind === "training" ? "info" : "fail"}">Blocked</span>`;
+      return `<tr class="bot-row"><td>${esc(b.token)}<div class="small muted" style="font-weight:400">${esc(b.owner)}</div></td><td><span class="small">${kindName[b.kind]}</span></td><td>${robots}${b.rule ? `<div class="small muted">${esc(b.rule)}</div>` : ""}</td><td>${live}</td><td class="small muted col-purpose">${esc(b.purpose)}</td></tr>`;
+    }).join("");
+    const searchBlocked = d.bots.filter((b) => b.kind !== "training" && (!b.allowed || (b.live && b.live.possibleBlock)));
+    const robotsNote = d.robots.state === "missing" ? "No robots.txt found, so every bot is allowed by robots rules." : d.robots.state === "error" ? `robots.txt returned ${d.robots.status}. Crawlers treat that as "block everything".` : `Read ${d.robots.url}`;
+    document.getElementById("out").innerHTML = `
+      <div class="notice ${searchBlocked.length ? "err" : "ok"}" style="margin-bottom:16px">${searchBlocked.length ? `<strong>${searchBlocked.length} AI search/answer bot(s) may be blocked:</strong> ${searchBlocked.map((b) => esc(b.token)).join(", ")}.` : "<strong>All AI search and answer bots can reach this page.</strong>"} <span class="small">${esc(robotsNote)}</span></div>
+      <div class="card table-scroll" style="padding:8px 12px"><table class="data"><thead><tr><th>Bot</th><th>Type</th><th>robots.txt</th><th>Live test</th><th class="col-purpose">What it does</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <p class="small muted">Normal browser request: status ${d.browser.status}, ${d.browser.words} words. ${searchBlocked.length ? `<a href="/tools/robots-txt-generator?url=${encodeURIComponent(d.url)}">Generate a corrected robots.txt →</a>` : ""}</p>`;
+    document.getElementById("full").href = "/?url=" + encodeURIComponent(d.url) + "#audit";
+  },
+});
+</script>
+</body>
+</html>
