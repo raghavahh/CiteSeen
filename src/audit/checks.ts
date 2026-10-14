@@ -19,6 +19,7 @@ import {
   siteName,
   socialLinks,
   trimTo,
+  trimToSentence,
 } from "./siteinfo.ts";
 import type { AuditContext, CheckResult, CheckStatus, GroupId } from "./types.ts";
 
@@ -748,8 +749,10 @@ export const titleMeta: CheckFn = (ctx) => {
 
   const name = siteName(ctx);
   const h1 = ctx.html.headings.find((h) => h.level === 1)?.text || "";
-  const sugTitle = trimTo(t && t.length >= 10 ? t : h1 && !h1.includes(name) ? `${h1} | ${name}` : h1 || name, 65);
-  const sugDesc = trimTo(d && d.length >= 50 ? d : siteDescription(ctx), 160);
+  // Keep what already passes; otherwise shorten at a natural boundary instead of mid-sentence.
+  const sugTitle =
+    t && t.length >= 10 && t.length <= 70 ? t : trimTo(t && t.length >= 10 ? t : h1 && !h1.includes(name) ? `${h1} | ${name}` : h1 || name, 65);
+  const sugDesc = d && d.length >= 50 && d.length <= 170 ? d : trimToSentence(d && d.length >= 50 ? d : siteDescription(ctx), 160);
   return result(base, earned, earned === 4 ? "Title and description are present and a good length." : "Title or description is missing or the wrong length.", evidence, {
     title: "Suggested tags",
     steps: ["Say what the page offers and who it's for, in plain words. Put the most important words first."],
@@ -824,18 +827,28 @@ export const openGraph: CheckFn = (ctx) => {
   const evidence = keys.map((k) => (m[k] ? `✓ ${k}: ${trimTo(m[k], 80)}` : `✗ ${k} missing`));
   const earned = keys.filter((k) => m[k]).length;
   const name = siteName(ctx);
+  // Link previews need a raster image (PNG/JPG/WebP); SVGs, icons and favicons don't work.
+  const existing = m["og:image"] ? absUrl(m["og:image"], ctx.finalUrl) : "";
+  const candidate = existing || primaryImage(ctx);
+  const usable = !!candidate && !/\.svg(\?|$)|favicon|apple-touch-icon|\/icon[-_.]/i.test(candidate);
+  const ogImage = existing || (usable ? candidate : `${ctx.origin}/og-image.png`);
   const tags = [
     `<meta property="og:type" content="${m["og:type"] || "website"}">`,
     `<meta property="og:site_name" content="${escapeHtmlAttr(name)}">`,
     `<meta property="og:title" content="${escapeHtmlAttr(m["og:title"] || trimTo(ctx.html.title || name, 70))}">`,
     `<meta property="og:description" content="${escapeHtmlAttr(m["og:description"] || trimTo(siteDescription(ctx), 200))}">`,
-    `<meta property="og:image" content="${escapeHtmlAttr(m["og:image"] ? absUrl(m["og:image"], ctx.finalUrl) : primaryImage(ctx))}">`,
+    `<meta property="og:image" content="${escapeHtmlAttr(ogImage)}">`,
     `<meta property="og:url" content="${escapeHtmlAttr(m["og:url"] || ctx.finalUrl)}">`,
     `<meta name="twitter:card" content="summary_large_image">`,
   ];
   return result(base, earned, earned === 4 ? "All core Open Graph tags present." : `${4 - earned} of 4 core Open Graph tags missing.`, evidence, {
     title: "Add this tag set",
-    steps: ["Pre-filled from your page. og:image should be at least 1200×630 px."],
+    steps: [
+      "Pre-filled from your page.",
+      existing || usable
+        ? "og:image should be a PNG or JPG of at least 1200×630 px."
+        : `Create a 1200×630 px PNG or JPG (your logo and a one-line promise is enough) and upload it as ${ogImage}. SVGs and favicons don't show in link previews.`,
+    ],
     code: tags.join("\n"),
     language: "html",
     where: "<head>",
@@ -897,7 +910,10 @@ export const answerFirst: CheckFn = (ctx) => {
   });
 };
 
-function toQuestion(heading: string, name: string): string {
+const IMPERATIVE =
+  /^(pick|choose|select|get|start|find|learn|book|try|join|build|create|explore|browse|discover|see|watch|read|download|compare|check|plan|use|meet|request|apply|shop|buy|order|track|sign up|subscribe|grow|boost|improve|save|hire|schedule|claim|unlock|master|prepare|practice|practise)\b/;
+
+export function toQuestion(heading: string, name: string): string {
   const h = heading.replace(/[.:!]+$/, "").trim();
   const l = h.toLowerCase();
   if (/^(our )?services?$/.test(l)) return `What services does ${name} offer?`;
@@ -907,7 +923,10 @@ function toQuestion(heading: string, name: string): string {
   if (/^(features?|what you get)$/.test(l)) return `What do you get with ${name}?`;
   if (/^(why|benefits)/.test(l)) return `Why choose ${name}?`;
   if (/^(contact|get in touch)/.test(l)) return `How do I contact ${name}?`;
-  return `What is ${h.charAt(0).toLowerCase() + h.slice(1)}?`;
+  const lower = h.charAt(0).toLowerCase() + h.slice(1);
+  // Imperative headings ("Pick your paper", "Book a call") become "How do I …?" questions.
+  if (IMPERATIVE.test(l)) return `How do I ${lower.replace(/\byour\b/gi, "my").replace(/\byou\b/gi, "I")}?`;
+  return `What is ${lower}?`;
 }
 
 export const textDepth: CheckFn = (ctx) => {

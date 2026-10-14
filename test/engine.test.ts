@@ -1,7 +1,8 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { generateRobotsTxt } from "../src/audit/checks.ts";
+import { generateRobotsTxt, toQuestion } from "../src/audit/checks.ts";
+import { trimToSentence } from "../src/audit/siteinfo.ts";
 import { isPrivateIp, normaliseInputUrl } from "../src/audit/fetcher.ts";
 import { parseHtml } from "../src/audit/html.ts";
 import { isAllowed, parseRobots } from "../src/audit/robots.ts";
@@ -100,6 +101,19 @@ describe("llms.txt validator", () => {
   });
   it("flags missing H1", () => {
     expect(validateLlmsTxt("hello").some((i) => i.level === "error")).toBe(true);
+  });
+});
+
+describe("fix suggestions", () => {
+  it("turns imperative headings into how-to questions", () => {
+    expect(toQuestion("Pick your paper", "GATE A–Z")).toBe("How do I pick my paper?");
+    expect(toQuestion("Our services", "Acme")).toBe("What services does Acme offer?");
+    expect(toQuestion("Machine learning basics", "Acme")).toBe("What is machine learning basics?");
+  });
+  it("trims descriptions at a sentence end", () => {
+    const d =
+      "Every GATE 2027 topic in order for all 29 papers, with hand-picked lectures playing on the page, key-point notes and free official previous-year papers. ₹49 per paper for 1 year.";
+    expect(trimToSentence(d, 160)).toBe(d.slice(0, d.indexOf(".") + 1));
   });
 });
 

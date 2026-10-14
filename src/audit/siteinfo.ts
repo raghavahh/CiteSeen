@@ -232,6 +232,15 @@ export function trimTo(s: string, n: number): string {
   return (sp > n * 0.6 ? cut.slice(0, sp) : cut).replace(/[\s,;:.-]+$/, "") + "…";
 }
 
+/** Shorten to whole sentences when possible (better for meta descriptions than a mid-sentence "…"). */
+export function trimToSentence(s: string, n: number): string {
+  if (s.length <= n) return s;
+  const head = s.slice(0, n);
+  const end = Math.max(head.lastIndexOf(". "), head.lastIndexOf("! "), head.lastIndexOf("? "), /[.!?]$/.test(head) ? head.length - 1 : -1);
+  if (end >= n * 0.5) return head.slice(0, end + 1);
+  return trimTo(s, n);
+}
+
 export function escapeHtmlAttr(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
