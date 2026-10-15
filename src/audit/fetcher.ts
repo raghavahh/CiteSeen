@@ -70,14 +70,40 @@ function isIpLiteral(host: string): boolean {
   return /^\d{1,3}(\.\d{1,3}){3}$/.test(host) || host.startsWith("[") || /^[0-9a-f:]+$/i.test(host) && host.includes(":");
 }
 
+/** Expand an IPv6 literal (optionally with a trailing dotted IPv4) into 8 numeric groups. */
+export function expandIpv6(ip: string): number[] | null {
+  let s = ip.split("%")[0];
+  const dotted = s.match(/(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
+  if (dotted) {
+    const p = dotted.slice(1).map(Number);
+    if (p.some((n) => n > 255)) return null;
+    s = s.slice(0, -dotted[0].length) + ((p[0] << 8) | p[1]).toString(16) + ":" + ((p[2] << 8) | p[3]).toString(16);
+  }
+  const halves = s.split("::");
+  if (halves.length > 2) return null;
+  const head = halves[0] ? halves[0].split(":") : [];
+  const tail = halves.length === 2 && halves[1] ? halves[1].split(":") : [];
+  const fill = halves.length === 2 ? 8 - head.length - tail.length : 0;
+  if (fill < 0) return null;
+  const parts = [...head, ...Array(fill).fill("0"), ...tail];
+  if (parts.length !== 8 || parts.some((x) => !/^[0-9a-f]{1,4}$/i.test(x))) return null;
+  return parts.map((x) => parseInt(x, 16));
+}
+
 export function isPrivateIp(host: string): boolean {
   const h = host.replace(/^\[|\]$/g, "").toLowerCase();
   if (h.includes(":")) {
-    // IPv6: loopback, unspecified, unique-local, link-local, IPv4-mapped
-    if (h === "::1" || h === "::") return true;
-    if (h.startsWith("fc") || h.startsWith("fd") || h.startsWith("fe80")) return true;
-    const mapped = h.match(/::ffff:(\d+\.\d+\.\d+\.\d+)$/);
-    if (mapped) return isPrivateIp(mapped[1]);
+    const g = expandIpv6(h);
+    if (!g) return true; // unparseable: refuse
+    if (g.slice(0, 7).every((x) => x === 0) && g[7] <= 1) return true; // :: and ::1
+    if ((g[0] & 0xfe00) === 0xfc00) return true; // fc00::/7 unique-local
+    if ((g[0] & 0xffc0) === 0xfe80) return true; // fe80::/10 link-local
+    if ((g[0] & 0xff00) === 0xff00) return true; // multicast
+    const v4 = (hi: number, lo: number) => `${hi >> 8}.${hi & 255}.${lo >> 8}.${lo & 255}`;
+    // Embedded IPv4: ::ffff:a.b.c.d (mapped), ::a.b.c.d (compatible), 64:ff9b::/96 (NAT64), 2002::/16 (6to4)
+    if (g.slice(0, 5).every((x) => x === 0) && (g[5] === 0xffff || g[5] === 0)) return isPrivateIp(v4(g[6], g[7]));
+    if (g[0] === 0x64 && g[1] === 0xff9b) return isPrivateIp(v4(g[6], g[7]));
+    if (g[0] === 0x2002) return isPrivateIp(v4(g[1], g[2]));
     return false;
   }
   const p = h.split(".").map(Number);
@@ -155,7 +181,12 @@ export async function safeFetch(input: string | URL, opts: FetchOptions): Promis
     }
 
     if (res.status >= 300 && res.status < 400 && res.headers.get("location")) {
-      const to = new URL(res.headers.get("location")!, u).toString();
+      let to: string;
+      try {
+        to = new URL(res.headers.get("location")!, u).toString();
+      } catch {
+        return fail(`Invalid redirect from ${u.hostname}`, res.status);
+      }
       redirects.push({ from: u.toString(), status: res.status, to });
       try {
         await res.body?.cancel();

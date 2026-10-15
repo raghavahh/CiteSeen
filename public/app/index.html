@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard – CiteReady</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/app/app.css">
+</head>
+<body class="app">
+<a class="sr-only" href="#view">Skip to content</a>
+<div class="shell">
+  <aside class="side" id="side" aria-label="App navigation">
+    <a class="logo" href="/app" aria-label="CiteReady dashboard"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#2563EB"/><path d="M8 9.5h16v10.5h-8l-4.5 4v-4H8z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M12.2 14.8l2.4 2.4 4.8-4.8" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>CiteReady</a>
+    <nav class="side-nav" id="side-nav"></nav>
+    <div class="side-plan" id="side-plan"></div>
+    <div class="side-user" id="side-user"></div>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <button class="btn sm ghost menu-btn" id="menu" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="side">☰</button>
+      <div class="crumbs" id="crumbs"></div>
+      <div class="top-actions"><a class="btn sm secondary hide-sm" href="/#audit">Quick audit</a><button class="btn sm" type="button" id="top-add">+ Add site</button></div>
+    </header>
+    <main id="view" class="view" tabindex="-1"><div class="loader on" style="padding:60px 0"><span class="spinner"></span>Loading your workspace…</div></main>
+  </div>
+</div>
+<div class="toast-wrap" id="toasts" aria-live="polite"></div>
+<dialog id="add-dialog" class="dialog" aria-labelledby="add-title">
+  <form method="dialog" id="add-form" novalidate>
+    <h2 id="add-title" style="font-size:1.35rem">Add a client site</h2>
+    <p class="small muted">We'll run the first audit straight away.</p>
+    <div class="field"><label for="add-url">Website address</label><input id="add-url" name="url" type="text" inputmode="url" placeholder="yourclient.com" required></div>
+    <div class="grid-2" style="gap:12px">
+      <div class="field"><label for="add-cat">What they do <span class="muted">(optional)</span></label><input id="add-cat" name="category" type="text" placeholder="dental clinic"></div>
+      <div class="field"><label for="add-loc">Where <span class="muted">(optional)</span></label><input id="add-loc" name="location" type="text" placeholder="Pune"></div>
+    </div>
+    <p class="hint" style="margin-top:-6px">Used to write the AI Visibility questions, e.g. "best dental clinic in Pune".</p>
+    <div class="form-error" id="add-error" role="alert"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+      <button class="btn ghost" type="button" id="add-cancel">Cancel</button>
+      <button class="btn" type="submit" id="add-submit">Add and audit</button>
+    </div>
+  </form>
+</dialog>
+<script src="/assets/app.js"></script>
+<script src="/assets/report.js"></script>
+<script src="/app/app.js"></script>
+</body>
+</html>

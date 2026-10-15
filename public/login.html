@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in – CiteReady</title>
+<meta name="description" content="Sign in to CiteReady with Google or an email link to save client sites, track AI visibility and send white-label reports.">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://citeready-app.pages.dev/login">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+  .auth { min-height: calc(100vh - 64px); display: grid; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 900px) { .auth { grid-template-columns: 1fr; } .auth-side { display: none; } }
+  .auth-main { display: grid; place-items: center; padding: 48px 16px; position: relative; overflow: hidden; }
+  .auth-card { width: 100%; max-width: 420px; }
+  .google-btn { width: 100%; background: var(--surface); color: var(--ink); border: 1px solid var(--line-2); box-shadow: var(--shadow-sm); }
+  .google-btn:hover { box-shadow: var(--shadow); }
+  .divider { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 0.85rem; margin: 20px 0; }
+  .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .auth-side { background: radial-gradient(circle at 20% 20%, #3b5bdb 0, transparent 50%), radial-gradient(circle at 80% 85%, #ea580c 0, transparent 45%), #0b1220; color: #fff; padding: 64px 48px; display: flex; flex-direction: column; justify-content: center; }
+  .auth-side .checklist li { color: #dbe3f3; }
+  .note { margin-top: 32px; padding: 18px 20px; border-radius: 16px; background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.12); color: #dbe3f3; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="wrap">
+  <a class="logo" href="/" aria-label="CiteReady home"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#2563EB"/><path d="M8 9.5h16v10.5h-8l-4.5 4v-4H8z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M12.2 14.8l2.4 2.4 4.8-4.8" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>CiteReady</a>
+  <nav class="nav"><a href="/tools/">Free tools</a><a href="/#pricing">Pricing</a></nav>
+</div></header>
+<main class="auth">
+  <div class="auth-main">
+    <div class="mesh" aria-hidden="true"></div>
+    <div class="auth-card">
+      <h1 style="font-size:2rem">Welcome to CiteReady</h1>
+      <p class="muted">Sign in or create a free account. No password needed.</p>
+      <div id="msg" role="alert"></div>
+      <a class="btn lg google-btn" id="google" href="/api/auth/google">
+        <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.2-.1-2.3-.4-3.5z"/></svg>
+        Continue with Google
+      </a>
+      <div class="divider">or use your email</div>
+      <form id="email-form" novalidate>
+        <div class="field"><label for="email">Work email</label><input id="email" type="email" name="email" autocomplete="email" placeholder="you@agency.com" required></div>
+        <button class="btn lg" type="submit" style="width:100%">Email me a sign-in link</button>
+      </form>
+      <p class="small muted" style="margin-top:18px">By continuing you agree to the <a href="/terms">Terms</a> and <a href="/privacy">Privacy policy</a>.</p>
+    </div>
+  </div>
+  <aside class="auth-side" aria-label="What you get">
+    <span class="kicker" style="color:#fdba74">Free forever for one site</span>
+    <h2 style="color:#fff">Turn AI search audits into client wins.</h2>
+    <ul class="checklist" style="margin-top:12px"><li>Save client sites and see their score history</li><li>Check whether AI models name your clients when customers ask</li><li>Send white-label reports with your logo</li><li>Get alerts when a site's AI readiness drops</li></ul>
+    <p class="note small">Upgrade to Plus when you need more sites. The first 20 agencies keep the $19/month launch price for life.</p>
+  </aside>
+</main>
+<script src="/assets/app.js"></script>
+<script>
+(function () {
+  const p = new URLSearchParams(location.search);
+  const raw = p.get("next") || "";
+  // Server re-validates with safeNext(); this only avoids building a bad link.
+  const next = raw.startsWith("/") && !raw.startsWith("//") && !/[\s\\]/.test(raw) ? raw : "/app";
+  document.getElementById("google").href = "/api/auth/google?next=" + encodeURIComponent(next);
+  const msg = document.getElementById("msg");
+  const errors = {
+    google_not_configured: "Google sign-in is being set up. Please use the email link for now.",
+    google_cancelled: "Google sign-in was cancelled.",
+    google_state: "That sign-in attempt expired. Please try again.",
+    google_exchange: "Google sign-in failed. Please try again.",
+    google_token: "We couldn't verify your Google account. Please try again.",
+    link_invalid: "That sign-in link isn't valid.",
+    link_expired: "That sign-in link has expired or was already used. Request a new one.",
+  };
+  if (p.get("error")) msg.innerHTML = `<p class="notice err">${CR.esc(errors[p.get("error")] || "Sign-in failed. Please try again.")}</p>`;
+  const form = document.getElementById("email-form");
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = form.querySelector("button");
+    btn.disabled = true;
+    try {
+      const r = await CR.post("/api/auth/email", { email: form.email.value.trim(), next });
+      if (r.devLink) { location.href = r.devLink; return; }
+      form.innerHTML = `<p class="notice ok">${r.sent ? "Check your inbox. We sent a sign-in link to <strong>" + CR.esc(form.email.value) + "</strong>. It expires in 15 minutes." : "Email sign-in is being set up. Please use Google for now."}</p>`;
+    } catch (ex) {
+      msg.innerHTML = `<p class="notice err">${CR.esc(ex.message)}</p>`;
+      btn.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>

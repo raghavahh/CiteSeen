@@ -13,5 +13,14 @@ id = "f8ed2f2708cb48c58eaaf4a914776593"
 
 [vars]
 SITE_URL = "https://citeready-app.pages.dev"
+EMAIL_FROM = "CiteReady <onboarding@resend.dev>"
 # Max audits per IP per hour
 RATE_LIMIT_PER_HOUR = "30"
+
+# Users, sessions, client sites, audit history, AI checks, billing.
+# Apply migrations with: npx wrangler d1 migrations apply citeready-db --remote
+[[d1_databases]]
+binding = "DB"
+database_name = "citeready-db"
+database_id = "6b12148b-bb50-435c-a882-7693bbb37047"
+migrations_dir = "migrations"

@@ -1,0 +1,23 @@
+# citeready-cron: weekly re-audits for Plus/Pro sites. Deploy with: npm run deploy:cron
+name = "citeready-cron"
+main = "index.ts"
+compatibility_date = "2025-09-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = false
+
+[triggers]
+crons = ["17 * * * *"]
+
+[[kv_namespaces]]
+binding = "KV"
+id = "f8ed2f2708cb48c58eaaf4a914776593"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "citeready-db"
+database_id = "6b12148b-bb50-435c-a882-7693bbb37047"
+
+[vars]
+SITE_URL = "https://citeready-app.pages.dev"
+EMAIL_FROM = "CiteReady <onboarding@resend.dev>"
+RATE_LIMIT_PER_HOUR = "30"
