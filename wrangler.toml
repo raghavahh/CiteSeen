@@ -1,7 +1,7 @@
-# Cloudflare Pages project (https://citeready-app.pages.dev).
+# Cloudflare Pages project (https://citeseen.pages.dev).
 # `npm run build` copies public/ to dist/ and bundles src/index.ts into dist/_worker.js,
 # which Pages runs for every request; static files are served through env.ASSETS.
-name = "citeready-app"
+name = "citeseen"
 pages_build_output_dir = "./dist"
 compatibility_date = "2025-09-01"
 compatibility_flags = ["nodejs_compat"]
@@ -12,15 +12,15 @@ binding = "KV"
 id = "f8ed2f2708cb48c58eaaf4a914776593"
 
 [vars]
-SITE_URL = "https://citeready-app.pages.dev"
-EMAIL_FROM = "CiteReady <onboarding@resend.dev>"
+SITE_URL = "https://citeseen.pages.dev"
+EMAIL_FROM = "CiteSeen <onboarding@resend.dev>"
 # Max audits per IP per hour
 RATE_LIMIT_PER_HOUR = "30"
 
 # Users, sessions, client sites, audit history, AI checks, billing.
-# Apply migrations with: npx wrangler d1 migrations apply citeready-db --remote
+# Apply migrations with: npx wrangler d1 migrations apply citeseen-db --remote
 [[d1_databases]]
 binding = "DB"
-database_name = "citeready-db"
-database_id = "6b12148b-bb50-435c-a882-7693bbb37047"
+database_name = "citeseen-db"
+database_id = "caa9eefb-526d-46a1-92a4-ca82998cfd2f"
 migrations_dir = "migrations"

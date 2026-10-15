@@ -1,20 +1,20 @@
-# CiteReady
+# CiteSeen
 
-> CiteReady is a fix-first AI search audit for small agencies. It checks whether ChatGPT, Perplexity, Claude and Google AI can reach, understand and quote a website, scores it 0–100, and gives copy-paste code for every fix. White-label reports start at $29/month.
+> CiteSeen is a fix-first AI search audit for small agencies. It checks whether ChatGPT, Perplexity, Claude and Google AI can reach, understand and quote a website, scores it 0–100, and gives copy-paste code for every fix. White-label reports start at $29/month.
 
 ## Main pages
 
-- [Free AI search audit](https://citeready-app.pages.dev/): Paste a URL, get a score and fixes in about 10 seconds
-- [Pricing](https://citeready-app.pages.dev/#pricing): Free, $9 one report, $29/month Agency, $79/month Pro
-- [About](https://citeready-app.pages.dev/about): Who builds CiteReady and how the audit works
+- [Free AI search audit](https://citeseen.pages.dev/): Paste a URL, get a score and fixes in about 10 seconds
+- [Pricing](https://citeseen.pages.dev/#pricing): Free, $9 one report, $29/month Agency, $79/month Pro
+- [About](https://citeseen.pages.dev/about): Who builds CiteSeen and how the audit works
 
 ## Free tools
 
-- [AI crawler checker](https://citeready-app.pages.dev/tools/ai-crawler-checker): Is my site blocked by ChatGPT, Perplexity or Claude?
-- [AI-ready robots.txt generator](https://citeready-app.pages.dev/tools/robots-txt-generator): Allow AI search bots, choose about training bots
-- [llms.txt generator and validator](https://citeready-app.pages.dev/tools/llms-txt-generator): Generate or check an llms.txt file
-- [What AI bots see](https://citeready-app.pages.dev/tools/what-ai-bots-see): View a page as raw HTML without JavaScript
+- [AI crawler checker](https://citeseen.pages.dev/tools/ai-crawler-checker): Is my site blocked by ChatGPT, Perplexity or Claude?
+- [AI-ready robots.txt generator](https://citeseen.pages.dev/tools/robots-txt-generator): Allow AI search bots, choose about training bots
+- [llms.txt generator and validator](https://citeseen.pages.dev/tools/llms-txt-generator): Generate or check an llms.txt file
+- [What AI bots see](https://citeseen.pages.dev/tools/what-ai-bots-see): View a page as raw HTML without JavaScript
 
 ## Contact
 
-- [Contact](https://citeready-app.pages.dev/contact): hello@citeready.app
+- [Contact](https://citeseen.pages.dev/contact): hello@citeseen.app

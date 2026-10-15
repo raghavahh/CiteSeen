@@ -1,16 +1,16 @@
-# CiteReady v0.2 → v0.3 build plan
+# CiteSeen v0.2 → v0.3 build plan
 
-Status on 15 Oct 2026: v0.1 is live at https://citeready-app.pages.dev (free audit, share links, 4 tools).
-This plan takes CiteReady to v0.3: accounts, paid plans, client dashboard, white-label reports, weekly re-audits, AI answer checks, and a premium redesign with motion.
+Status on 15 Oct 2026: v0.1 is live at https://citeseen.pages.dev (free audit, share links, 4 tools).
+This plan takes CiteSeen to v0.3: accounts, paid plans, client dashboard, white-label reports, weekly re-audits, AI answer checks, and a premium redesign with motion.
 
 ## Architecture
 
 | Part | Choice | Why |
 | --- | --- | --- |
 | Web app + API | Cloudflare Pages + `_worker.js` (as today) | Already live, free |
-| Database | **Cloudflare D1** `citeready-db` | Users, sessions, sites, audits, AI checks, billing |
-| Cache, rate limits, model load | KV `CITEREADY_KV` (existing) | Fast counters |
-| Weekly re-audits | Separate tiny Worker `citeready-cron` with a Cron Trigger | Pages has no cron; shares D1 + engine code |
+| Database | **Cloudflare D1** `citeseen-db` | Users, sessions, sites, audits, AI checks, billing |
+| Cache, rate limits, model load | KV `CITESEEN_KV` (existing) | Fast counters |
+| Weekly re-audits | Separate tiny Worker `citeseen-cron` with a Cron Trigger | Pages has no cron; shares D1 + engine code |
 | Email (magic link, alerts) | Resend free tier (3,000/month) behind an interface | Falls back to console logging in dev |
 | AI answer checks | NVIDIA NIM (OpenAI-compatible API) behind a provider interface | Swap to OpenAI/Perplexity later without code changes |
 | Front end | Static marketing pages + `/app` dashboard written in TypeScript, bundled by esbuild | Marketing must stay readable without JS (we sell that) |
@@ -60,7 +60,7 @@ One-off: $9 / ₹249 white-label report credit (never expires).
 
 ## Design
 
-- Design system: `design-system/citeready/MASTER.md` (UI/UX Pro Max). Trust blue #2563EB, CTA orange #EA580C, Plus Jakarta Sans, light glass surfaces, standard motion (staggered reveals 300–450 ms).
+- Design system: `design-system/citeseen/MASTER.md` (UI/UX Pro Max). Trust blue #2563EB, CTA orange #EA580C, Plus Jakarta Sans, light glass surfaces, standard motion (staggered reveals 300–450 ms).
 - Landing page: animated hero showing a live mock audit (score counting up, bots ticking through, fixes sliding in), a marquee of AI engines, bento feature grid, before/after score demo, pricing with monthly/one-off toggle, FAQ.
 - Dashboard: sites table with score sparklines, site detail with score history chart, report, AI visibility, white-label settings, billing.
 - Rules: content visible without JS, `prefers-reduced-motion` respected, 4.5:1 contrast, visible focus, works at 375 / 768 / 1024 / 1440 px. The site must still score 95–100 on its own audit.
@@ -79,8 +79,8 @@ One-off: $9 / ₹249 white-label report credit (never expires).
 
 | What | Where to get it | Command |
 | --- | --- | --- |
-| NVIDIA NIM key | build.nvidia.com | `npx wrangler pages secret put NVIDIA_API_KEY --project-name citeready-app` |
-| Google OAuth client | Google Cloud Console → Credentials → OAuth client (Web). Redirect URI: `https://citeready-app.pages.dev/api/auth/google/callback` | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` |
+| NVIDIA NIM key | build.nvidia.com | `npx wrangler pages secret put NVIDIA_API_KEY --project-name citeseen` |
+| Google OAuth client | Google Cloud Console → Credentials → OAuth client (Web). Redirect URI: `https://citeseen.pages.dev/api/auth/google/callback` | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` |
 | Resend key (optional) | resend.com | `RESEND_API_KEY` |
 | PayPal sandbox app | developer.paypal.com | `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` |
 | Razorpay test keys | dashboard.razorpay.com (test mode) | `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` |

@@ -1,4 +1,4 @@
-// citeready-cron: re-audits paid users' saved sites weekly and emails alerts.
+// citeseen-cron: re-audits paid users' saved sites weekly and emails alerts.
 // Runs hourly and processes a few due sites per run, keeping each invocation under the
 // free plan's 50-subrequest limit (one audit is 10-14 fetches incl. redirects and sitemap fallbacks).
 import { auditSite, type Site } from "../src/app/siteAudit.ts";

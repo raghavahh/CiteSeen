@@ -69,7 +69,7 @@ export async function paypalSubscribe(req: Request, env: Env, user: User): Promi
       custom_id: user.id,
       subscriber: { email_address: user.email },
       application_context: {
-        brand_name: "CiteReady",
+        brand_name: "CiteSeen",
         user_action: "SUBSCRIBE_NOW",
         shipping_preference: "NO_SHIPPING",
         return_url: `${origin}/api/billing/paypal/return`,
@@ -133,12 +133,12 @@ export async function paypalOrder(req: Request, env: Env, user: User): Promise<R
     body: {
       intent: "CAPTURE",
       purchase_units: [
-        { custom_id: user.id, description: "CiteReady white-label report credit", amount: { currency_code: "USD", value: REPORT_PRICE.usd.toFixed(2) } },
+        { custom_id: user.id, description: "CiteSeen white-label report credit", amount: { currency_code: "USD", value: REPORT_PRICE.usd.toFixed(2) } },
       ],
       payment_source: {
         paypal: {
           experience_context: {
-            brand_name: "CiteReady",
+            brand_name: "CiteSeen",
             shipping_preference: "NO_SHIPPING",
             user_action: "PAY_NOW",
             return_url: `${origin}/api/billing/paypal/capture`,

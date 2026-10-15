@@ -276,6 +276,6 @@ export async function exportCsv(env: Env, user: User): Promise<Response> {
   const lines = [["site", "name", "score", "trigger", "audited_at"].join(",")];
   for (const r of results) lines.push([r.host, r.name, r.score, r.trigger, new Date(r.created_at).toISOString()].map(csvCell).join(","));
   return new Response(lines.join("\n") + "\n", {
-    headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": 'attachment; filename="citeready-history.csv"' },
+    headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": 'attachment; filename="citeseen-history.csv"' },
   });
 }

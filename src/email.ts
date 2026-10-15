@@ -30,12 +30,12 @@ export function emailLayout(title: string, bodyHtml: string, cta?: { label: stri
 <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:32px 16px">
 <table width="520" cellpadding="0" cellspacing="0" style="max-width:520px;background:#fff;border:1px solid #E2E8F0;border-radius:14px">
 <tr><td style="padding:28px 32px">
-<div style="font-weight:700;font-size:18px;color:#2563EB;margin-bottom:18px">CiteReady</div>
+<div style="font-weight:700;font-size:18px;color:#2563EB;margin-bottom:18px">CiteSeen</div>
 <h1 style="font-size:20px;margin:0 0 12px">${esc(title)}</h1>
 <div style="font-size:15px;line-height:1.6;color:#334155">${bodyHtml}</div>
 ${cta ? `<p style="margin:24px 0 8px"><a href="${esc(cta.url)}" style="background:#2563EB;color:#fff;text-decoration:none;padding:12px 20px;border-radius:9px;font-weight:700;display:inline-block">${esc(cta.label)}</a></p>` : ""}
 </td></tr></table>
-<p style="font-size:12px;color:#64748B;margin-top:16px">You're receiving this because you use CiteReady.</p>
+<p style="font-size:12px;color:#64748B;margin-top:16px">You're receiving this because you use CiteSeen.</p>
 </td></tr></table></body></html>`;
 }
 

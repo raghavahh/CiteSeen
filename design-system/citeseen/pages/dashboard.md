@@ -1,6 +1,6 @@
 # Dashboard Page Overrides
 
-> **PROJECT:** CiteReady
+> **PROJECT:** CiteSeen
 > **Generated:** 2026-10-15 05:32:25
 > **Page Type:** Dashboard / Data View
 

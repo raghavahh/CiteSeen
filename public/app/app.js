@@ -1,4 +1,4 @@
-// CiteReady dashboard (vanilla JS SPA). Talks to /api/*; all rendering goes through esc() for safety.
+// CiteSeen dashboard (vanilla JS SPA). Talks to /api/*; all rendering goes through esc() for safety.
 (function () {
   const esc = CR.esc;
   const view = document.getElementById("view");
@@ -97,7 +97,7 @@
   }
   function setView(html, title) {
     view.innerHTML = `<div class="fade-in">${html}</div>`;
-    if (title) document.title = `${title} – CiteReady`;
+    if (title) document.title = `${title} – CiteSeen`;
     window.CRReport && window.CRReport.animateRings(view);
     animateLines(view);
   }
@@ -340,7 +340,7 @@
     crumbs.textContent = "White-label";
     const b = me.user.brand;
     const locked = !me.limits.whiteLabel;
-    setView(`<div class="page-head"><div><h1>White-label reports</h1><p class="muted" style="margin:4px 0 0">Your brand on every client report. No CiteReady branding.</p></div></div>
+    setView(`<div class="page-head"><div><h1>White-label reports</h1><p class="muted" style="margin:4px 0 0">Your brand on every client report. No CiteSeen branding.</p></div></div>
       ${locked ? `<div class="notice" style="margin-bottom:16px">White-label reports are included in Plus and Pro, or $9 per report. You have <b>${me.user.reportCredits}</b> report credit(s). <a href="/app/billing">Get more</a>.</div>` : ""}
       <div class="grid-2" style="align-items:start"><div class="card"><form id="brand-form">
         <div class="field"><label for="b-name">Agency name</label><input id="b-name" name="name" value="${esc(b.name)}" maxlength="80" placeholder="Bright Pixel Agency"></div>
@@ -376,7 +376,7 @@
     await loadScript("https://checkout.razorpay.com/v1/checkout.js");
     return new Promise((resolve, reject) => {
       const rz = new window.Razorpay({
-        key: o.keyId, amount: o.amount, currency: o.currency, order_id: o.orderId, name: "CiteReady",
+        key: o.keyId, amount: o.amount, currency: o.currency, order_id: o.orderId, name: "CiteSeen",
         description: kind === "report" ? "White-label report credit" : kind === "pro_month" ? "Pro · 1 month" : "Plus · 1 month",
         prefill: { name: o.name, email: o.email }, theme: { color: "#2563EB" },
         handler: async (resp) => { try { await call("POST", "/api/billing/razorpay/verify", resp); resolve(); } catch (e) { reject(e); } },
@@ -431,10 +431,10 @@
     const date = new Date(r.fetchedAt).toLocaleDateString(undefined, { dateStyle: "long" });
     const head = d.whiteLabel
       ? `<div class="wl-head" style="background:${color}"><div>${b.logo ? `<img src="${esc(b.logo)}" alt="${esc(b.name)}">` : `<b style="font-size:1.3rem">${esc(b.name || "Your agency")}</b>`}<div class="small" style="opacity:.9;margin-top:6px">AI search readiness report · ${esc(date)}</div></div><div style="text-align:right"><div class="small" style="opacity:.85">Prepared for</div><b>${esc(r.site.name || r.host)}</b></div></div>`
-      : `<div class="notice" style="margin-bottom:12px">${d.canUnlock ? `This report shows CiteReady branding. <button class="btn sm" id="unlock" type="button">Use 1 credit to white-label it</button>` : `White-label reports are on Plus and Pro, or $9 per report. <a href="/app/billing">See options</a>.`}</div>`;
+      : `<div class="notice" style="margin-bottom:12px">${d.canUnlock ? `This report shows CiteSeen branding. <button class="btn sm" id="unlock" type="button">Use 1 credit to white-label it</button>` : `White-label reports are on Plus and Pro, or $9 per report. <a href="/app/billing">See options</a>.`}</div>`;
     setView(`<div class="toolbar no-print"><button class="btn" type="button" id="print">Print / save as PDF</button><a class="btn secondary" href="javascript:history.back()">Back</a>${d.whiteLabel && !b.name ? '<a class="btn ghost" href="/app/brand">Add your branding</a>' : ""}</div>
       <div class="wl">${head}${CRReport.renderReport(r, { openFailing: true, hideInfo: true })}
-      <div class="wl-foot"><span>${esc(d.whiteLabel ? b.footer || b.name || "" : "Generated with CiteReady · citeready-app.pages.dev")}</span><span>${esc(r.finalUrl)}</span></div></div>`, `Report – ${r.host}`);
+      <div class="wl-foot"><span>${esc(d.whiteLabel ? b.footer || b.name || "" : "Generated with CiteSeen · citeseen.pages.dev")}</span><span>${esc(r.finalUrl)}</span></div></div>`, `Report – ${r.host}`);
     view.querySelectorAll("details.check").forEach((x) => (x.open = true));
     document.getElementById("print").onclick = () => window.print();
     const u = document.getElementById("unlock");

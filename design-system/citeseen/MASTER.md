@@ -6,7 +6,7 @@
 
 ---
 
-**Project:** CiteReady
+**Project:** CiteSeen
 **Generated:** 2026-10-15 05:32:25
 **Category:** SaaS (General)
 **Design Dials:** Variance 6/10 (Balanced / Modern) | Motion 7/10 (Standard) | Density 5/10 (Standard)

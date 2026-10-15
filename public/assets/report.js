@@ -103,7 +103,7 @@
 
   window.CR.get("/api/audit/" + id)
     .then((r) => {
-      document.title = `${r.host}: ${r.score}/100 AI search audit – CiteReady`;
+      document.title = `${r.host}: ${r.score}/100 AI search audit – CiteSeen`;
       root.innerHTML =
         renderReport(r, {
           toolbar: `<div class="toolbar">

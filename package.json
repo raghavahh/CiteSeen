@@ -1,19 +1,19 @@
 {
-  "name": "citeready",
+  "name": "citeseen",
   "version": "0.1.0",
   "private": true,
   "description": "Fix-first AI search audits for small agencies",
   "type": "module",
   "scripts": {
     "dev": "npm run build && npm run db:migrate:local && wrangler pages dev --port 8787",
-    "deploy": "npm run build && wrangler pages deploy --project-name citeready-app --branch main",
+    "deploy": "npm run build && wrangler pages deploy --project-name citeseen --branch main",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "audit": "node --experimental-strip-types scripts/audit-cli.ts",
     "build": "node scripts/build.mjs",
     "deploy:cron": "wrangler deploy --config cron/wrangler.toml",
-    "db:migrate": "wrangler d1 migrations apply citeready-db --remote",
-    "db:migrate:local": "wrangler d1 migrations apply citeready-db --local"
+    "db:migrate": "wrangler d1 migrations apply citeseen-db --remote",
+    "db:migrate:local": "wrangler d1 migrations apply citeseen-db --local"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20261006.1",

@@ -1,4 +1,4 @@
-// CiteReady shared browser helpers (no build step, no dependencies).
+// CiteSeen shared browser helpers (no build step, no dependencies).
 (function () {
   const CR = (window.CR = {});
 

@@ -1,6 +1,6 @@
 // Orchestrates one audit: fetch the page and its supporting files in parallel, then run every check.
 
-import { BROWSER_UA, CITEREADY_UA, FIREWALL_TEST_BOTS, getBot } from "./bots.ts";
+import { BROWSER_UA, CITESEEN_UA, FIREWALL_TEST_BOTS, getBot } from "./bots.ts";
 import { ALL_CHECKS, looksLikeChallenge } from "./checks.ts";
 import { safeFetch, normaliseInputUrl, UnsafeUrlError, type FetchResult } from "./fetcher.ts";
 import { detectCdn, detectPlatform, parseHtml } from "./html.ts";
@@ -76,8 +76,8 @@ async function finishContext(input: string, page: FetchResult, opts: { skipBotTe
   const llmsUrl = `${origin}/llms.txt`;
 
   const [robotsRes, llmsRes, botFetches] = await Promise.all([
-    safeFetch(robotsUrl, { userAgent: CITEREADY_UA, maxBytes: 512_000, timeoutMs: 6000, accept: "text/plain,*/*" }),
-    safeFetch(llmsUrl, { userAgent: CITEREADY_UA, maxBytes: 256_000, timeoutMs: 6000, accept: "text/plain,text/markdown,*/*" }),
+    safeFetch(robotsUrl, { userAgent: CITESEEN_UA, maxBytes: 512_000, timeoutMs: 6000, accept: "text/plain,*/*" }),
+    safeFetch(llmsUrl, { userAgent: CITESEEN_UA, maxBytes: 256_000, timeoutMs: 6000, accept: "text/plain,text/markdown,*/*" }),
     opts.skipBotTest ? Promise.resolve([] as BotFetch[]) : runBotFetches(page.finalUrl),
   ]);
 
@@ -98,7 +98,7 @@ async function finishContext(input: string, page: FetchResult, opts: { skipBotTe
   });
   const sitemapUrl = listed || `${origin}/sitemap.xml`;
   const sm = await safeFetch(sitemapUrl, {
-    userAgent: CITEREADY_UA,
+    userAgent: CITESEEN_UA,
     maxBytes: 64_000,
     timeoutMs: 6000,
     accept: "application/xml,text/xml,*/*",
@@ -108,7 +108,7 @@ async function finishContext(input: string, page: FetchResult, opts: { skipBotTe
   if (!smValid && !listed) {
     // Common alternatives (WordPress core, Yoast/Rank Math)
     for (const alt of ["/sitemap_index.xml", "/wp-sitemap.xml"]) {
-      const r = await safeFetch(origin + alt, { userAgent: CITEREADY_UA, maxBytes: 64_000, timeoutMs: 4000 });
+      const r = await safeFetch(origin + alt, { userAgent: CITESEEN_UA, maxBytes: 64_000, timeoutMs: 4000 });
       if (r.status === 200 && /<(urlset|sitemapindex)\b/i.test(r.body)) {
         sitemap = { url: origin + alt, status: 200, valid: true, listedInRobots: false };
         break;

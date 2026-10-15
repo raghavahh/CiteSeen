@@ -21,10 +21,10 @@ export async function emailStart(req: Request, env: Env): Promise<Response> {
   const link = `${new URL(req.url).origin}/api/auth/email/verify?token=${encodeURIComponent(token)}`;
   const sent = await sendEmail(env, {
     to: email,
-    subject: "Your CiteReady sign-in link",
-    text: `Sign in to CiteReady: ${link}\n\nThis link works once and expires in 15 minutes. If you didn't ask for it, ignore this email.`,
+    subject: "Your CiteSeen sign-in link",
+    text: `Sign in to CiteSeen: ${link}\n\nThis link works once and expires in 15 minutes. If you didn't ask for it, ignore this email.`,
     html: emailLayout(
-      "Sign in to CiteReady",
+      "Sign in to CiteSeen",
       "Click the button to sign in. The link works once and expires in 15 minutes. If you didn't ask for it, you can ignore this email.",
       { label: "Sign in", url: link },
     ),

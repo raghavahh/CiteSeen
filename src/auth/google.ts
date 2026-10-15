@@ -3,7 +3,7 @@ import type { Env } from "../env.ts";
 import { HttpError, cookie, isSecure, parseCookies, randomToken, redirect } from "../lib/http.ts";
 import { createSession, safeNext, upsertUser } from "./session.ts";
 
-const STATE_COOKIE = "cr_oauth";
+const STATE_COOKIE = "cs_oauth";
 
 function callbackUrl(req: Request): string {
   return `${new URL(req.url).origin}/api/auth/google/callback`;

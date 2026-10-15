@@ -1,4 +1,4 @@
-/* Dashboard layer on top of the shared design system (design-system/citeready/pages/dashboard.md: denser spacing). */
+/* Dashboard layer on top of the shared design system (design-system/citeseen/pages/dashboard.md: denser spacing). */
 body.app { background: var(--bg); }
 .shell { display: grid; grid-template-columns: 248px 1fr; min-height: 100vh; }
 .side { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; gap: 18px; padding: 18px 14px; border-right: 1px solid var(--line); background: var(--surface); overflow-y: auto; z-index: 50; }

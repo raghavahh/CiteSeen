@@ -1,4 +1,4 @@
-# CiteReady practises what it preaches: every AI search bot is welcome.
+# CiteSeen practises what it preaches: every AI search bot is welcome.
 
 User-agent: OAI-SearchBot
 User-agent: ChatGPT-User
@@ -17,4 +17,4 @@ Allow: /
 Disallow: /api/
 Disallow: /r/
 
-Sitemap: https://citeready-app.pages.dev/sitemap.xml
+Sitemap: https://citeseen.pages.dev/sitemap.xml

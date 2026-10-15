@@ -1,4 +1,4 @@
-// CiteReady Worker (runs as Pages _worker.js): JSON API, auth, dashboard API, billing and page routing.
+// CiteSeen Worker (runs as Pages _worker.js): JSON API, auth, dashboard API, billing and page routing.
 // Static pages are served from ./public through env.ASSETS.
 
 import { crawlerCheck, fetchRobots, llmsTool, rawView } from "./api/tools.ts";

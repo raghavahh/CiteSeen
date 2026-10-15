@@ -1,4 +1,4 @@
--- CiteReady v0.2/v0.3 schema. Times are unix milliseconds.
+-- CiteSeen v0.2/v0.3 schema. Times are unix milliseconds.
 
 CREATE TABLE users (
   id            TEXT PRIMARY KEY,

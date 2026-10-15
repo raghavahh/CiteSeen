@@ -141,7 +141,7 @@ export const BROWSER_UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
 
 /** Identifies our own audit requests honestly (used for robots.txt, sitemap, llms.txt). */
-export const CITEREADY_UA = "Mozilla/5.0 (compatible; CiteReadyAudit/0.1; +https://citeready-app.pages.dev/about)";
+export const CITESEEN_UA = "Mozilla/5.0 (compatible; CiteSeenAudit/0.1; +https://citeseen.pages.dev/about)";
 
 export function getBot(token: string): Bot | undefined {
   return BOTS.find((b) => b.token.toLowerCase() === token.toLowerCase());

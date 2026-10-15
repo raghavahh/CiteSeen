@@ -2,7 +2,7 @@
 import type { Env } from "../env.ts";
 import { HttpError, cookie, isSecure, newId, parseCookies, randomToken, sha256Hex } from "../lib/http.ts";
 
-export const SESSION_COOKIE = "cr_session";
+export const SESSION_COOKIE = "cs_session";
 const SESSION_DAYS = 30;
 
 export interface User {

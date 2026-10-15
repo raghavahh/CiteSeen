@@ -1,6 +1,6 @@
 // Endpoints for the free single-purpose tools (SEO hub). Each reuses the audit engine's pieces.
 
-import { BOTS, BROWSER_UA, CITEREADY_UA, FIREWALL_TEST_BOTS, getBot } from "../audit/bots.ts";
+import { BOTS, BROWSER_UA, CITESEEN_UA, FIREWALL_TEST_BOTS, getBot } from "../audit/bots.ts";
 import { generateLlmsTxt, looksLikeChallenge } from "../audit/checks.ts";
 import { normaliseInputUrl, safeFetch } from "../audit/fetcher.ts";
 import { parseHtml } from "../audit/html.ts";
@@ -11,7 +11,7 @@ import { buildContext } from "../audit/run.ts";
 export async function crawlerCheck(input: string) {
   const url = normaliseInputUrl(input);
   const [robotsRes, browser] = await Promise.all([
-    safeFetch(`${url.origin}/robots.txt`, { userAgent: CITEREADY_UA, maxBytes: 512_000, timeoutMs: 6000, accept: "text/plain,*/*" }),
+    safeFetch(`${url.origin}/robots.txt`, { userAgent: CITESEEN_UA, maxBytes: 512_000, timeoutMs: 6000, accept: "text/plain,*/*" }),
     safeFetch(url, { userAgent: BROWSER_UA, maxBytes: 2_500_000, timeoutMs: 8000 }),
   ]);
   const present = robotsRes.status === 200 && !/^\s*<(!doctype|html)/i.test(robotsRes.body);
@@ -59,7 +59,7 @@ export async function crawlerCheck(input: string) {
 /** Fetch an existing robots.txt for the generator to start from. */
 export async function fetchRobots(input: string) {
   const url = normaliseInputUrl(input);
-  const r = await safeFetch(`${url.origin}/robots.txt`, { userAgent: CITEREADY_UA, maxBytes: 512_000, timeoutMs: 6000, accept: "text/plain,*/*" });
+  const r = await safeFetch(`${url.origin}/robots.txt`, { userAgent: CITESEEN_UA, maxBytes: 512_000, timeoutMs: 6000, accept: "text/plain,*/*" });
   const present = r.status === 200 && !/^\s*<(!doctype|html)/i.test(r.body);
   const parsed = parseRobots(present ? r.body : "");
   return { origin: url.origin, status: r.status, present, body: present ? r.body : "", sitemaps: parsed.sitemaps };
