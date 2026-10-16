@@ -147,7 +147,7 @@
         `<div class="cta-band dark">
           <div class="grid-2" style="align-items:center">
             <div><h2 style="font-size:1.45rem;margin-bottom:6px">Does AI actually name ${esc(r.site.name || r.host)}?</h2>
-            <p class="muted" style="margin:0">Save this site to track AI Visibility on real AI answers, get weekly re-audits, and send it as a white-label report.</p></div>
+            <p class="muted" style="margin:0">Save this site to check model recognition, get weekly re-audits, and send it as a white-label report.</p></div>
             <div style="display:flex;justify-content:flex-end"><a class="btn lg" href="/login?next=${encodeURIComponent("/app?add=" + r.url)}">Track this site free <span class="arrow" aria-hidden="true">→</span></a></div>
           </div></div>`;
       animateRings(root);

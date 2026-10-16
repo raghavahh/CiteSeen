@@ -539,3 +539,7 @@ body.app .side-plan { background: var(--cs-surface-blue); }
 body.app .stat .v { font-weight: 650; }
 body.app .page-head h1 { font-weight: 650; }
 body.app .toast { background: var(--cs-ink); color: #fff; }
+/* robots generator: let grid columns and long bot descriptions shrink on small screens */
+.gen > * { min-width: 0; }
+.botlist label > span { min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 860px) { .gen .sticky { position: static; } }

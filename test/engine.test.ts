@@ -207,4 +207,59 @@ describe("full audit", () => {
     const r = await runAudit("down.example", { skipBotTest: true });
     expect(r.checks.find((c) => c.id === "robots-search-bots")!.earned).toBe(0);
   });
+
+  it("marks the firewall check inconclusive (not failed) when every crawler request errors", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+        const u = typeof input === "string" ? input : input.toString();
+        const ua = new Headers(init?.headers).get("user-agent") || "";
+        if (/compatible; /.test(ua)) throw new Error("connection reset");
+        if (u.endsWith("/robots.txt")) return new Response("User-agent: *\nAllow: /", { status: 200 });
+        return new Response("<html><body><p>hello</p></body></html>", { status: 200, headers: { "content-type": "text/html" } });
+      }),
+    );
+    const r = await runAudit("flaky.example");
+    const fw = r.checks.find((c) => c.id === "firewall-test")!;
+    expect(fw.status).toBe("inconclusive");
+    expect(r.scoring!.excluded).toContain("firewall-test");
+    // Inconclusive points leave the denominator instead of counting as zero.
+    const counted = r.checks.filter((c) => c.points > 0 && c.status !== "na" && c.status !== "inconclusive");
+    expect(r.scoring!.applicable).toBe(counted.reduce((s, c) => s + c.points, 0));
+    expect(r.score).toBe(Math.round((r.scoring!.earned / r.scoring!.applicable) * 100));
+  });
+
+  it("does not score user-triggered fetchers (ChatGPT-User, Claude-User, Perplexity-User)", async () => {
+    vi.stubGlobal(
+      "fetch",
+      mockFetch({
+        "https://userbots.example/": { body: "<html><body><p>hello</p></body></html>" },
+        "https://userbots.example/robots.txt": {
+          body: "User-agent: ChatGPT-User\nDisallow: /\n\nUser-agent: Claude-User\nDisallow: /\n\nUser-agent: Perplexity-User\nDisallow: /",
+          headers: { "content-type": "text/plain" },
+        },
+      }),
+    );
+    const r = await runAudit("userbots.example", { skipBotTest: true });
+    const rb = r.checks.find((c) => c.id === "robots-search-bots")!;
+    expect(rb.earned).toBe(rb.points);
+    expect(rb.evidence.join(" ")).toContain("ChatGPT-User");
+  });
+
+  it("verifies /about and /contact before reporting them missing", async () => {
+    vi.stubGlobal(
+      "fetch",
+      mockFetch({
+        "https://trust.example/": { body: "<html><body><p>No footer links here.</p></body></html>" },
+        "https://trust.example/about": { body: "<html><body><h1>About us</h1></body></html>" },
+      }),
+    );
+    const r = await runAudit("trust.example", { skipBotTest: true });
+    const t = r.checks.find((c) => c.id === "trust-pages")!;
+    const ev = t.evidence.join(" | ");
+    expect(ev).toContain("/about exists but isn't linked");
+    expect(ev).toContain("/contact didn't respond");
+    expect(t.earned).toBe(1);
+    expect(t.confidence).toBe("medium");
+  });
 });
