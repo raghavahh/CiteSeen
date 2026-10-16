@@ -9,7 +9,7 @@
 <link rel="canonical" href="https://citeseen.pages.dev/login">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@1&display=swap">
 <link rel="stylesheet" href="/assets/style.css">
 <style>
   .auth { min-height: calc(100vh - 64px); display: grid; grid-template-columns: 1fr 1fr; }
@@ -63,7 +63,22 @@
   const raw = p.get("next") || "";
   // Server re-validates with safeNext(); this only avoids building a bad link.
   const next = raw.startsWith("/") && !raw.startsWith("//") && !/[\s\\]/.test(raw) ? raw : "/app";
-  document.getElementById("google").href = "/api/auth/google?next=" + encodeURIComponent(next);
+  const g = document.getElementById("google");
+  g.href = "/api/auth/google?next=" + encodeURIComponent(next);
+  // Don't offer a sign-in method that isn't configured on the server.
+  fetch("/api/config").then((r) => r.json()).then((c) => {
+    if (c.google) return;
+    g.removeAttribute("href");
+    g.setAttribute("aria-disabled", "true");
+    g.style.opacity = "0.55";
+    g.style.pointerEvents = "none";
+    g.insertAdjacentHTML("afterend", '<p class="small muted" style="margin:8px 0 0">Google sign-in isn\'t set up yet. Use the email link below.</p>');
+    if (!c.emailDelivery) {
+      const f = document.getElementById("email-form");
+      f.insertAdjacentHTML("beforebegin", '<p class="notice" style="margin-bottom:12px">Sign-in emails aren\'t being sent yet, so accounts can\'t be created right now. The free audit and tools work without an account.</p>');
+      f.querySelector("button").disabled = true;
+    }
+  }).catch(() => {});
   const msg = document.getElementById("msg");
   const errors = {
     google_not_configured: "Google sign-in is being set up. Please use the email link for now.",

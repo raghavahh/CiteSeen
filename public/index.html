@@ -17,7 +17,7 @@
 <meta name="author" content="Pithani Raghavendra">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@1&display=swap">
 <link rel="stylesheet" href="/assets/style.css">
 <script>document.documentElement.classList.add("js")</script>
 <script type="application/ld+json">
@@ -69,7 +69,7 @@
     {
       "@type": "FAQPage",
       "mainEntity": [
-        { "@type": "Question", "name": "What is an AI search audit?", "acceptedAnswer": { "@type": "Answer", "text": "An AI search audit checks whether AI answer engines like ChatGPT, Perplexity, Claude and Google AI Overviews can reach a website, understand who the business is, and quote its content. CiteSeen runs 18 rule-based checks and gives a copy-paste fix for every problem." } },
+        { "@type": "Question", "name": "What is an AI search audit?", "acceptedAnswer": { "@type": "Answer", "text": "An AI search audit checks whether AI answer engines like ChatGPT, Perplexity, Claude and Google AI Overviews can reach a website, understand who the business is, and quote its content. CiteSeen runs 18 checks (16 scored, 2 informational) and gives a copy-paste fix for every problem it can fix." } },
         { "@type": "Question", "name": "What is the difference between the Readiness score and AI model recognition?", "acceptedAnswer": { "@type": "Answer", "text": "The Readiness score measures what's fixable on the website itself. AI model recognition asks open AI models (hosted on NVIDIA NIM, no web browsing) the questions customers ask, three times each, and measures how often they name the brand from what they already know. It is not a measurement of ChatGPT, Perplexity or Google results." } },
         { "@type": "Question", "name": "Why can't ChatGPT see my website?", "acceptedAnswer": { "@type": "Answer", "text": "The most common reasons are a robots.txt rule or firewall that blocks OAI-SearchBot or ChatGPT-User, content that only appears after JavaScript runs, a noindex tag, or missing schema that explains who the business is." } },
         { "@type": "Question", "name": "Should I block GPTBot?", "acceptedAnswer": { "@type": "Answer", "text": "That's a business choice. GPTBot collects data to train OpenAI models. Blocking it does not remove a site from ChatGPT search answers, which use OAI-SearchBot and ChatGPT-User. CiteSeen reports training bots but never lowers your score for blocking them." } },
@@ -115,27 +115,32 @@
         </div>
       </div>
 
-      <div class="reveal d2" style="position:relative">
-        <div class="mock" aria-label="Illustrative example of a CiteSeen report" role="img">
-          <div class="mock-bar"><i></i><i></i><i></i><span class="url">Illustrative example · yourclient.com</span></div>
-          <div class="mock-body">
-            <div class="ring" style="width:130px;height:130px">
-              <svg viewBox="0 0 120 120" width="130" height="130" aria-hidden="true"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--surface-2)" stroke-width="10"/><circle cx="60" cy="60" r="52" fill="none" stroke="var(--warn)" stroke-width="10" stroke-linecap="round" style="stroke-dasharray:326.7;stroke-dashoffset:166.6"/></svg>
-              <div class="num"><div><b>49</b><small>Readiness</small></div></div>
-            </div>
-            <div class="rows">
-              <div class="row bad"><span class="ic">✕</span><span>PerplexityBot blocked in robots.txt</span><b class="sev critical">Critical</b></div>
-              <div class="row bad"><span class="ic">✕</span><span>Main text needs JavaScript</span><b class="sev high">High</b></div>
-              <div class="row mid"><span class="ic">!</span><span>Possible firewall block (simulated)</span><b class="sev high">High</b></div>
-              <div class="row ok"><span class="ic">✓</span><span>Sitemap listed in robots.txt</span><b>4/4</b></div>
-            </div>
-          </div>
-          <pre class="mock-fix" aria-label="Generated fix"><code><span class="c"># Fix: allow AI search crawlers (generated)</span>
-<span class="k">User-agent:</span> PerplexityBot
-<span class="k">Allow:</span> /
-<span class="k">Sitemap:</span> <span class="s">https://yourclient.com/sitemap.xml</span></code></pre>
+      <div class="hero-visual reveal d2">
+        <div id="hero3d" class="hero3d" role="img" aria-label="Illustration: a website page, its structured-data layers, and a cobalt evidence path leading to a source card">
+          <svg class="hero3d-fallback" viewBox="0 0 560 440" aria-hidden="true">
+            <defs><filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#202A33" flood-opacity=".12"/></filter></defs>
+            <g filter="url(#sh)">
+              <rect x="40" y="70" width="210" height="270" rx="14" fill="#FBFAF6" stroke="#E3E2DC"/>
+              <rect x="58" y="88" width="174" height="18" rx="5" fill="#EEF0EC"/>
+              <rect x="58" y="124" width="130" height="13" rx="4" fill="#202A33"/><rect x="58" y="144" width="92" height="13" rx="4" fill="#202A33"/>
+              <rect x="58" y="172" width="170" height="5" rx="2" fill="#D9D8D1"/><rect x="58" y="185" width="170" height="5" rx="2" fill="#D9D8D1"/><rect x="58" y="198" width="120" height="5" rx="2" fill="#D9D8D1"/>
+              <rect x="58" y="270" width="80" height="44" rx="6" fill="#EAF0FF"/><rect x="66" y="282" width="50" height="5" rx="2" fill="#315CEB"/>
+              <rect x="270" y="120" width="150" height="190" rx="12" fill="#EAF0FF" opacity=".75"/>
+              <rect x="300" y="132" width="150" height="190" rx="12" fill="#E5F3EF" opacity=".7"/>
+              <rect x="330" y="144" width="150" height="190" rx="12" fill="#F2F2EE" opacity=".8"/>
+              <rect x="380" y="40" width="140" height="92" rx="12" fill="#fff" stroke="#E3E2DC"/>
+              <rect x="394" y="56" width="16" height="16" rx="4" fill="#315CEB"/><rect x="418" y="58" width="74" height="8" rx="3" fill="#202A33"/>
+              <rect x="394" y="84" width="96" height="5" rx="2" fill="#D9D8D1"/><rect x="394" y="108" width="36" height="9" rx="3" fill="#267C70"/>
+            </g>
+            <path d="M150 300 C 240 290, 300 240, 360 200 S 430 120, 440 110" fill="none" stroke="#315CEB" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="150" cy="300" r="7" fill="#315CEB"/><circle cx="360" cy="200" r="7" fill="#315CEB"/><circle cx="440" cy="110" r="7" fill="#315CEB"/>
+          </svg>
         </div>
-        <p class="small muted" style="margin:10px 0 0;text-align:right"><span class="sample-tag">Illustrative</span> Not a real client. Run an audit to see real results.</p>
+        <ol class="rq-steps" aria-label="How CiteSeen reads a page">
+          <li data-rq-step class="on"><b>Reach</b><span>Crawlers can access it</span></li>
+          <li data-rq-step><b>Understand</b><span>Structure and entity are clear</span></li>
+          <li data-rq-step><b>Quote</b><span>Content is usable as a source</span></li>
+        </ol>
       </div>
     </div>
   </div>
@@ -147,6 +152,52 @@
     </div>
     <p class="center small muted" style="margin-top:12px">We check whether these crawlers can reach a page. We don't query these services or claim their answers.</p>
   </section>
+
+  <section class="wrap rq" aria-labelledby="rq-h">
+    <div class="section-head reveal">
+      <span class="kicker">How the audit reads a page</span>
+      <h2 id="rq-h">Reach. Understand. <span class="serif">Quote.</span></h2>
+      <p class="muted">18 checks run on the live page: 16 are scored and grouped into three stages, 2 are informational. Each stage has to work before the next one matters.</p>
+    </div>
+    <div class="rq-grid">
+      <article class="rq-card reveal">
+        <div class="rq-num">01 · Reach <span class="muted">40 pts</span></div>
+        <h3>Can AI crawlers get to the page?</h3>
+        <pre class="rq-code"><code>User-agent: PerplexityBot
+<span class="bad">Disallow: /</span>   ← blocks AI search</code></pre>
+        <p class="small muted">robots.txt for 5 search crawlers, simulated crawler requests, raw-HTML text, noindex, sitemap, redirects.</p>
+      </article>
+      <article class="rq-card reveal d1">
+        <div class="rq-num">02 · Understand <span class="muted">35 pts</span></div>
+        <h3>Is it clear who and what the page is?</h3>
+        <ul class="rq-tree small"><li>Organization <span class="pill pass">found</span></li><li>sameAs <span class="pill warn">missing</span></li><li>Page type: FAQPage <span class="pill pass">found</span></li><li>title · description · H1 · lang · canonical</li></ul>
+      </article>
+      <article class="rq-card reveal d2">
+        <div class="rq-num">03 · Quote <span class="muted">25 pts</span></div>
+        <h3>Is the content easy to use as a source?</h3>
+        <blockquote class="rq-quote">"Pune's clinic offers same-day implants from ₹28,000." <cite>Answer-first sentence, with a fact</cite></blockquote>
+        <p class="small muted">Question headings, lists and tables, enough text, dates on articles, About and Contact pages.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="wrap" id="proof" aria-labelledby="proof-h">
+    <div class="section-head reveal">
+      <span class="kicker">From problem to fix</span>
+      <h2 id="proof-h">See how a finding becomes a fix</h2>
+      <p class="muted"><span class="sample-tag">Illustrative data</span> This walkthrough uses a fictional site (yourclient.com) so you can see the format. <a href="/sample">Open a real sample report</a> or run your own audit.</p>
+    </div>
+    <div class="demo reveal" data-demo>
+      <div class="demo-list" role="tablist" aria-label="Example findings">
+        <div class="demo-score"><b>49</b><span>Readiness<br><span class="muted small">illustrative</span></span></div>
+        <button role="tab" aria-selected="true" aria-controls="demo-panel" data-i="0"><span class="sev critical">Critical</span>PerplexityBot blocked in robots.txt</button>
+        <button role="tab" aria-selected="false" aria-controls="demo-panel" data-i="1"><span class="sev high">High</span>Main text needs JavaScript</button>
+        <button role="tab" aria-selected="false" aria-controls="demo-panel" data-i="2"><span class="sev high">High</span>Possible firewall block (simulated)</button>
+      </div>
+      <div class="demo-panel" id="demo-panel" role="tabpanel" aria-live="polite"></div>
+    </div>
+  </section>
+
 
   <section class="wrap" id="scores">
     <div class="section-head reveal">
@@ -160,7 +211,7 @@
         <h3 style="margin-top:12px">Can AI reach, understand and quote the site?</h3>
         <div class="big-num"><span data-count="94">94</span><span class="muted" style="font-size:1.2rem">/100</span></div>
         <div class="meter" data-meter="94"><i></i></div>
-        <ul class="checklist small"><li>18 rule-based checks on the live page</li><li>Every point linked to its evidence</li><li>A copy-paste fix for every failed check</li></ul>
+        <ul class="checklist small"><li>18 checks on the live page, 16 of them scored</li><li>Every point linked to its evidence</li><li>A copy-paste fix for every failed check</li></ul>
       </div>
       <div class="card reveal d1">
         <span class="pill accent">Model recognition</span>
@@ -226,7 +277,7 @@
     <div class="section-head reveal">
       <span class="kicker">The 18 checks</span>
       <h2>What does the AI search audit check?</h2>
-      <p class="muted">Rule-based checks on the live site in three groups. Training bots are reported, never penalised.</p>
+      <p class="muted">18 checks run on the live page: 16 scored in three groups, 2 informational. Training bots are reported, never penalised.</p>
     </div>
     <div class="grid-3" data-stagger>
       <div class="card"><h3>Can AI reach it? <span class="pill info">40 pts</span></h3><ul class="checklist small"><li>AI search bots allowed in robots.txt</li><li>Live firewall and CDN test</li><li>Content readable without JavaScript</li><li>No noindex or nosnippet</li><li>Sitemap exists and is listed</li><li>HTTPS and a clean redirect chain</li></ul></div>
@@ -245,7 +296,7 @@
       <table class="data">
         <thead><tr><th>What you need</th><th>Typical monitoring tool</th><th>CiteSeen</th></tr></thead>
         <tbody>
-          <tr><td>Know what's broken on the site</td><td>Sometimes, as a list of issues</td><td><span class="pill pass">Yes</span> 18 checks with evidence for every point</td></tr>
+          <tr><td>Know what's broken on the site</td><td>Sometimes, as a list of issues</td><td><span class="pill pass">Yes</span> 16 scored checks with evidence for every point</td></tr>
           <tr><td>Copy-paste fixes</td><td>Rarely</td><td><span class="pill pass">Yes</span> Generated from the site's own data</td></tr>
           <tr><td>Does AI actually name the brand?</td><td>Yes, usually the core feature</td><td><span class="pill pass">Yes</span> 3 runs per question, method shown</td></tr>
           <tr><td>White-label client reports</td><td>Often on higher tiers*</td><td><span class="pill pass">Yes</span> From $29/month, or $9 for one report</td></tr>
@@ -292,7 +343,7 @@
 
   <section class="wrap faq narrow">
     <div class="section-head reveal"><span class="kicker">FAQ</span><h2>Frequently asked questions</h2></div>
-    <details open><summary><h3>What is an AI search audit?</h3></summary><p>An AI search audit checks whether AI answer engines like ChatGPT, Perplexity, Claude and Google AI Overviews can reach a website, understand who the business is, and quote its content. CiteSeen runs 18 rule-based checks and gives a copy-paste fix for every problem.</p></details>
+    <details open><summary><h3>What is an AI search audit?</h3></summary><p>An AI search audit checks whether AI answer engines like ChatGPT, Perplexity, Claude and Google AI Overviews can reach a website, understand who the business is, and quote its content. CiteSeen runs 18 checks (16 scored, 2 informational) and gives a copy-paste fix for every problem it can fix.</p></details>
     <details><summary><h3>What is the difference between the Readiness score and AI model recognition?</h3></summary><p>The Readiness score measures what's fixable on the website itself. AI model recognition asks open AI models (hosted on NVIDIA NIM, no web browsing) the questions customers ask, three times each, and measures how often they name the brand from what they already know. It is not a measurement of ChatGPT, Perplexity or Google results.</p></details>
     <details><summary><h3>Why can't ChatGPT see my website?</h3></summary><p>The most common reasons are a robots.txt rule or firewall that blocks OAI-SearchBot or ChatGPT-User, content that only appears after JavaScript runs, a noindex tag, or missing schema that explains who the business is.</p></details>
     <details><summary><h3>Should I block GPTBot?</h3></summary><p>That's a business choice. GPTBot collects data to train OpenAI models. Blocking it does not remove a site from ChatGPT search answers, which use OAI-SearchBot and ChatGPT-User. CiteSeen reports training bots but never lowers your score for blocking them.</p></details>
@@ -328,6 +379,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
 <script src="/assets/motion.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+<script src="/assets/hero3d.js" defer></script>
+<script src="/assets/demo.js" defer></script>
 <script>
 (function () {
   const form = document.getElementById("audit-form");
