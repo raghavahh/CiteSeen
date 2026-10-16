@@ -57,7 +57,7 @@ const ROUTES: [string, RegExp, Handler][] = [
   ["POST", /^\/api\/tools\/raw$/, (req, env) => tool(req, env, "raw", rawView)],
   ["GET", /^\/api\/health$/, async () => json({ ok: true })],
   // Which sign-in methods are configured (booleans only, never secrets) so the UI never shows a dead button.
-  ["GET", /^\/api\/config$/, async (_req, env) => json({ google: !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET), emailDelivery: !!env.RESEND_API_KEY }, 200, { "cache-control": "no-store" })],
+  ["GET", /^\/api\/config$/, async (req, env) => json({ google: !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET), emailDelivery: !!env.RESEND_API_KEY || /^(localhost|127\.0\.0\.1)$/.test(new URL(req.url).hostname) }, 200, { "cache-control": "no-store" })],
   ["GET", /^\/api\/bots$/, async () => json(BOTS.map(({ ua: _ua, ...b }) => b), 200, { "cache-control": "public, max-age=3600" })],
 
   // Auth

@@ -30,7 +30,7 @@
 }
 </script>
 </head>
-<body>
+<body class="page-tool">
 <header class="site-header"><div class="wrap">
   <a class="logo" href="/" aria-label="CiteSeen home"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#315CEB"/><path d="M8 9.5h16v10.5h-8l-4.5 4v-4H8z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M12.2 14.8l2.4 2.4 4.8-4.8" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>CiteSeen</a>
   <nav class="nav"><a href="/tools/">Free tools</a><a class="hide-sm" href="/#pricing">Pricing</a><a href="/login">Sign in</a><a class="btn sm" href="/#audit">Run free audit</a></nav>
@@ -39,7 +39,7 @@
   <div class="hero" style="padding-bottom:16px">
     <span class="eyebrow">Free tool</span>
     <h1>Is my site blocked by ChatGPT?</h1>
-    <p class="lede">Check whether ChatGPT, Perplexity, Claude, Google and Bing can crawl a page. We read robots.txt for 15 AI bots and send live test requests with real AI-bot user agents to catch firewall and CDN blocks.</p>
+    <p class="lede">Check whether ChatGPT, Perplexity, Claude, Google and Bing can crawl a page. We read robots.txt for 15 AI bots and send simulated requests from our servers using AI-bot user agents to catch firewall and CDN blocks.</p>
     <form class="url-form" id="f" novalidate>
       <label for="url" class="sr-only">Website address</label>
       <input id="url" name="url" type="text" inputmode="url" placeholder="example.com" required>
@@ -87,7 +87,7 @@ CR.wireUrlForm(document.getElementById("f"), {
     const robotsNote = d.robots.state === "missing" ? "No robots.txt found, so every bot is allowed by robots rules." : d.robots.state === "error" ? `robots.txt returned ${d.robots.status}. Crawlers treat that as "block everything".` : `Read ${d.robots.url}`;
     document.getElementById("out").innerHTML = `
       <div class="notice ${searchBlocked.length ? "err" : "ok"}" style="margin-bottom:16px">${searchBlocked.length ? `<strong>${searchBlocked.length} AI search/answer bot(s) may be blocked:</strong> ${searchBlocked.map((b) => esc(b.token)).join(", ")}.` : "<strong>All AI search and answer bots can reach this page.</strong>"} <span class="small">${esc(robotsNote)}</span></div>
-      <div class="card table-scroll" style="padding:8px 12px"><table class="data"><thead><tr><th>Bot</th><th>Type</th><th>robots.txt</th><th>Live test</th><th class="col-purpose">What it does</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div class="card table-scroll" style="padding:8px 12px"><table class="data"><thead><tr><th>Bot</th><th>Type</th><th>robots.txt</th><th>Simulated request</th><th class="col-purpose">What it does</th></tr></thead><tbody>${rows}</tbody></table></div>
       <p class="small muted">Normal browser request: status ${d.browser.status}, ${d.browser.words} words. ${searchBlocked.length ? `<a href="/tools/robots-txt-generator?url=${encodeURIComponent(d.url)}">Generate a corrected robots.txt →</a>` : ""}</p>`;
     document.getElementById("full").href = "/?url=" + encodeURIComponent(d.url) + "#audit";
   },

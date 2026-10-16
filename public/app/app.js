@@ -152,12 +152,12 @@
       <div class="stats">
         <div class="card stat"><div class="k">Client sites</div><div class="v">${sites.length}<span class="muted" style="font-size:1rem">/${me.limits.sites}</span></div><div class="d">${me.limits.weekly ? "Re-audited weekly" : "Weekly re-audits on Plus"}</div></div>
         <div class="card stat"><div class="k">Avg. readiness</div><div class="v">${avg == null ? "–" : `<span data-count="${avg}">${avg}</span>`}</div><div class="d">Rule-based, out of 100</div></div>
-        <div class="card stat"><div class="k">Avg. AI visibility</div><div class="v">${avgAi == null ? "–" : `<span data-count="${avgAi}" data-suffix="%">${avgAi}%</span>`}</div><div class="d">Share of AI answers naming the brand</div></div>
+        <div class="card stat"><div class="k">Avg. model recognition</div><div class="v">${avgAi == null ? "–" : `<span data-count="${avgAi}" data-suffix="%">${avgAi}%</span>`}</div><div class="d">Open models naming the brand (no web browsing)</div></div>
         <div class="card stat"><div class="k">Unread alerts</div><div class="v">${me.unreadAlerts}</div><div class="d"><a href="/app/alerts">View alerts</a></div></div>
       </div>`;
     const table = sites.length
       ? `<div class="card table-scroll" style="padding:6px 10px"><table class="data sites-table">
-          <thead><tr><th>Site</th><th>Readiness</th><th class="hide-sm">Trend</th><th>AI visibility</th><th class="col-purpose">Last audit</th></tr></thead>
+          <thead><tr><th>Site</th><th>Readiness</th><th class="hide-sm">Trend</th><th>Model recognition</th><th class="col-purpose">Last audit</th></tr></thead>
           <tbody>${sites
             .map(
               (s) => `<tr><td class="host"><a href="/app/sites/${esc(s.id)}">${esc(s.name || s.host)}</a><div class="small muted">${esc(s.host)}</div></td>
@@ -179,11 +179,11 @@
     const data = await get(`/api/sites/${id}`);
     const s = data.site, latest = data.latest;
     crumbs.innerHTML = `<a href="/app">Overview</a> / ${esc(s.name || s.host)}`;
-    const tabs = [["report", "Report"], ["ai", "AI visibility"], ["history", "History"], ["settings", "Settings"]];
+    const tabs = [["report", "Report"], ["ai", "Model recognition"], ["history", "History"], ["settings", "Settings"]];
     const head = `
       <div class="page-head"><div class="site-hero">
         ${CRReport.ring(latest ? latest.score : 0, 96, "Readiness")}
-        ${CRReport.ring(s.lastAiScore == null ? 0 : Math.round(s.lastAiScore), 96, "AI visibility", "var(--accent)", s.lastAiScore == null ? "–" : Math.round(s.lastAiScore) + "%")}
+        ${CRReport.ring(s.lastAiScore == null ? 0 : Math.round(s.lastAiScore), 96, "Model recognition", "var(--accent)", s.lastAiScore == null ? "–" : Math.round(s.lastAiScore) + "%")}
         <div style="min-width:0"><h1 style="word-break:break-word">${esc(s.name || s.host)}</h1>
           <p class="small muted" style="margin:4px 0 10px"><a href="${esc(s.url)}" target="_blank" rel="noopener nofollow">${esc(s.url)}</a> · audited ${ago(s.lastAuditAt)}${s.weekly ? " · weekly re-audit on" : ""}</p>
           <div class="toolbar" style="margin:0">
@@ -219,7 +219,7 @@
     } else if (tab === "history") {
       const series = [
         { name: "Readiness", color: "var(--brand)", points: data.history.map((h) => ({ t: h.created_at, v: h.score })) },
-        { name: "AI visibility", color: "var(--accent)", points: data.aiHistory.map((h) => ({ t: h.at, v: (h.mentioned / Math.max(1, h.runs)) * 100 })) },
+        { name: "Model recognition", color: "var(--accent)", points: data.aiHistory.map((h) => ({ t: h.at, v: (h.mentioned / Math.max(1, h.runs)) * 100 })) },
       ];
       tabEl.innerHTML = `<div class="card">${lineChart(series)}</div>
         <div class="card table-scroll" style="margin-top:16px;padding:6px 10px"><table class="data"><thead><tr><th>Date</th><th>Readiness</th><th>Trigger</th><th></th></tr></thead><tbody>
@@ -245,7 +245,7 @@
             <details style="margin-top:10px"><summary class="small" style="cursor:pointer;font-weight:700">Read the ${c.answers.length} answers</summary>${c.answers.map((a, i) => `<div class="answer"><b>Run ${i + 1}</b>\n${esc(a)}</div>`).join("")}</details></div>`,
           )
           .join("")
-      : `<div class="notice info">No checks yet. Edit the questions below and run your first AI visibility check.</div>`;
+      : `<div class="notice info">No checks yet. Edit the questions below and run your first Model recognition check.</div>`;
     const visibility = d.checks.length ? Math.round((d.checks.reduce((a, c) => a + c.mentioned, 0) / d.checks.reduce((a, c) => a + c.runs, 0)) * 100) : null;
     el.innerHTML = `
       ${d.configured ? "" : `<div class="notice" style="margin-bottom:14px">AI checks are being switched on. You can prepare your questions now.</div>`}
@@ -256,7 +256,7 @@
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"><button class="btn sm ghost" type="button" id="ai-addq">+ Question</button><button class="btn sm secondary" type="button" id="ai-save">Save questions</button><button class="btn sm" type="submit" id="ai-run"${d.configured ? "" : " disabled"}>Run AI check</button></div></form>
           ${d.suggested ? `<p class="hint">Suggested from the site's details. Edit them to match how customers really ask.</p>` : ""}
         </div>
-        <div class="card"><h2 style="font-size:1.15rem">AI visibility</h2>
+        <div class="card"><h2 style="font-size:1.15rem">Model recognition</h2>
           <div class="big-num">${visibility == null ? "–" : visibility + "%"}</div>
           <p class="small muted">Share of AI answers that named ${esc(site.name || site.host)} in the latest check.</p>
           <p class="small muted" style="margin:0">${esc(d.method)}</p></div>
@@ -286,7 +286,7 @@
       el.querySelector("#ai-results").innerHTML = prompts().map(() => '<div class="card ai-result"><div class="skeleton" style="height:18px;width:60%"></div><div class="skeleton" style="height:12px;width:35%;margin-top:10px"></div></div>').join("");
       try {
         const r = await call("POST", `/api/sites/${site.id}/ai/run`, { prompts: prompts() });
-        toast(`AI visibility: ${Math.round(r.visibility)}%${r.failed ? ` · ${r.failed} question(s) failed and weren't charged` : ""}`);
+        toast(`Model recognition: ${Math.round(r.visibility)}%${r.failed ? ` · ${r.failed} question(s) failed and weren't charged` : ""}`);
         me = await get("/api/me");
         renderShell();
         siteView(site.id, "ai");
