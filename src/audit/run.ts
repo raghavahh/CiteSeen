@@ -8,7 +8,14 @@ import { parseRobots } from "./robots.ts";
 import { siteName } from "./siteinfo.ts";
 import type { AuditContext, AuditResult, BotFetch, GroupId, GroupScore } from "./types.ts";
 
-export const ENGINE_VERSION = "0.1.0";
+export const ENGINE_VERSION = "0.2.0";
+
+/** Real audit stages, reported as they happen (used for the live progress UI). */
+export type Stage = "page" | "robots" | "simulation" | "sitemap" | "scoring";
+export interface AuditOptions {
+  skipBotTest?: boolean;
+  onStage?: (stage: Stage, done: boolean) => void;
+}
 
 export type AuditErrorCode = "bad_url" | "unreachable" | "not_html" | "blocked";
 
@@ -31,7 +38,7 @@ function words(html: string): number {
   return parseHtml(html).wordCount;
 }
 
-export async function buildContext(input: string, opts: { skipBotTest?: boolean } = {}): Promise<AuditContext> {
+export async function buildContext(input: string, opts: AuditOptions = {}): Promise<AuditContext> {
   let url: URL;
   try {
     url = normaliseInputUrl(input);
@@ -39,6 +46,7 @@ export async function buildContext(input: string, opts: { skipBotTest?: boolean 
     throw new AuditError(e instanceof Error ? e.message : "Invalid URL", "bad_url");
   }
 
+  opts.onStage?.("page", false);
   const page = await safeFetch(url, { userAgent: BROWSER_UA, maxBytes: 2_500_000, timeoutMs: 9000 });
   if (page.error && !page.status) {
     // Retry over http if https failed to connect and the user didn't specify a scheme.
@@ -53,7 +61,7 @@ export async function buildContext(input: string, opts: { skipBotTest?: boolean 
   return finishContext(input, page, opts);
 }
 
-async function finishContext(input: string, page: FetchResult, opts: { skipBotTest?: boolean }): Promise<AuditContext> {
+async function finishContext(input: string, page: FetchResult, opts: AuditOptions): Promise<AuditContext> {
   if (page.status >= 400) {
     const challenged = looksLikeChallenge(page.body);
     throw new AuditError(
@@ -71,15 +79,27 @@ async function finishContext(input: string, page: FetchResult, opts: { skipBotTe
   const final = new URL(page.finalUrl);
   const origin = final.origin;
   const html = parseHtml(page.body);
+  opts.onStage?.("page", true);
+  const tick = <T,>(stage: Stage, p: Promise<T>) => { opts.onStage?.(stage, false); return p.then((v) => { opts.onStage?.(stage, true); return v; }); };
+  const linksText = html.links.map((l) => (l.href + " " + l.text).toLowerCase()).join(" ");
+  const probe = async (path: string) => {
+    const r = await safeFetch(origin + path, { userAgent: CITESEEN_UA, maxBytes: 32_000, timeoutMs: 5000 });
+    return r.status === 200 ? origin + path : undefined;
+  };
 
   const robotsUrl = `${origin}/robots.txt`;
   const llmsUrl = `${origin}/llms.txt`;
 
-  const [robotsRes, llmsRes, botFetches] = await Promise.all([
-    safeFetch(robotsUrl, { userAgent: CITESEEN_UA, maxBytes: 512_000, timeoutMs: 6000, accept: "text/plain,*/*" }),
+  const needAbout = !["about", "who-we-are", "our-story", "/team"].some((k) => linksText.includes(k));
+  const needContact = !/contact|mailto:|tel:/.test(linksText);
+  const [robotsRes, llmsRes, botFetches, aboutProbe, contactProbe] = await Promise.all([
+    tick("robots", safeFetch(robotsUrl, { userAgent: CITESEEN_UA, maxBytes: 512_000, timeoutMs: 6000, accept: "text/plain,*/*" })),
     safeFetch(llmsUrl, { userAgent: CITESEEN_UA, maxBytes: 256_000, timeoutMs: 6000, accept: "text/plain,text/markdown,*/*" }),
-    opts.skipBotTest ? Promise.resolve([] as BotFetch[]) : runBotFetches(page.finalUrl),
+    opts.skipBotTest ? Promise.resolve([] as BotFetch[]) : tick("simulation", runBotFetches(page.finalUrl)),
+    needAbout ? probe("/about") : Promise.resolve(undefined),
+    needContact ? probe("/contact") : Promise.resolve(undefined),
   ]);
+  opts.onStage?.("sitemap", false);
 
   const robotsLooksReal =
     robotsRes.status === 200 &&
@@ -116,6 +136,7 @@ async function finishContext(input: string, page: FetchResult, opts: { skipBotTe
     }
   }
 
+  opts.onStage?.("sitemap", true);
   return {
     inputUrl: input,
     finalUrl: page.finalUrl,
@@ -141,6 +162,7 @@ async function finishContext(input: string, page: FetchResult, opts: { skipBotTe
       body: llmsRes.status === 200 ? llmsRes.body.slice(0, 20000) : "",
     },
     botFetches,
+    trustProbe: { checked: needAbout || needContact, about: aboutProbe, contact: contactProbe },
   };
 }
 
@@ -168,11 +190,14 @@ export function scoreContext(ctx: AuditContext, startedAt = Date.now()): AuditRe
     return {
       id,
       title: GROUP_TITLES[id],
-      points: cs.reduce((a, c) => a + c.points, 0),
+      // Only checks that apply to this page count toward the denominator.
+      points: cs.filter(counted).reduce((a, c) => a + c.points, 0),
       earned: Math.round(cs.reduce((a, c) => a + c.earned, 0) * 10) / 10,
     };
   });
-  const score = Math.round(checks.reduce((a, c) => a + c.earned, 0));
+  const applicable = checks.filter(counted).reduce((a, c) => a + c.points, 0);
+  const earned = checks.reduce((a, c) => a + c.earned, 0);
+  const score = applicable ? Math.round((earned / applicable) * 100) : 0;
   return {
     version: ENGINE_VERSION,
     url: ctx.inputUrl,
@@ -182,6 +207,7 @@ export function scoreContext(ctx: AuditContext, startedAt = Date.now()): AuditRe
     durationMs: Date.now() - startedAt,
     score,
     grade: gradeFor(score),
+    scoring: { earned: Math.round(earned * 10) / 10, applicable, scored: checks.filter((c) => counted(c) && c.points > 0).length, excluded: checks.filter((c) => !counted(c)).map((c) => c.id) },
     groups,
     checks,
     site: {
@@ -195,6 +221,10 @@ export function scoreContext(ctx: AuditContext, startedAt = Date.now()): AuditRe
   };
 }
 
+function counted(c: { status: string }): boolean {
+  return c.status !== "na" && c.status !== "inconclusive";
+}
+
 export function gradeFor(score: number): string {
   if (score >= 90) return "AI-ready";
   if (score >= 75) return "Good";
@@ -203,10 +233,13 @@ export function gradeFor(score: number): string {
   return "Mostly invisible";
 }
 
-export async function runAudit(input: string, opts: { skipBotTest?: boolean } = {}): Promise<AuditResult> {
+export async function runAudit(input: string, opts: AuditOptions = {}): Promise<AuditResult> {
   const started = Date.now();
   const ctx = await buildContext(input, opts);
-  return scoreContext(ctx, started);
+  opts.onStage?.("scoring", false);
+  const r = scoreContext(ctx, started);
+  opts.onStage?.("scoring", true);
+  return r;
 }
 
 export { UnsafeUrlError };

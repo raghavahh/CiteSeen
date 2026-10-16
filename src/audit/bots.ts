@@ -125,14 +125,10 @@ export const BOTS: Bot[] = [
 ];
 
 /** The six bots the "Search bots allowed" check scores (PRD: 12 points, 2 each). */
-export const SCORED_SEARCH_BOTS = [
-  "OAI-SearchBot",
-  "ChatGPT-User",
-  "PerplexityBot",
-  "Claude-SearchBot",
-  "Googlebot",
-  "Bingbot",
-];
+export const SCORED_SEARCH_BOTS = ["OAI-SearchBot", "PerplexityBot", "Claude-SearchBot", "Googlebot", "Bingbot"];
+
+/** User-triggered fetchers: reported in the robots check but not scored (they don't decide search inclusion). */
+export const REPORTED_USER_BOTS = ["ChatGPT-User", "Perplexity-User", "Claude-User"];
 
 /** Bots impersonated in the live firewall/CDN test. Keep this short: each is one subrequest. */
 export const FIREWALL_TEST_BOTS = ["OAI-SearchBot", "ChatGPT-User", "PerplexityBot", "Claude-SearchBot"];

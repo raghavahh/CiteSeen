@@ -3,7 +3,10 @@ import type { ParsedHtml, Platform } from "./html.ts";
 import type { ParsedRobots } from "./robots.ts";
 
 export type GroupId = "reach" | "understand" | "quote" | "info";
-export type CheckStatus = "pass" | "warn" | "fail" | "info";
+/** na = not applicable to this page; inconclusive = we couldn't verify (neither counts toward the score). */
+export type CheckStatus = "pass" | "warn" | "fail" | "info" | "na" | "inconclusive";
+export type Severity = "critical" | "high" | "medium" | "low" | "info";
+export type Confidence = "high" | "medium" | "low";
 
 export interface Fix {
   title: string;
@@ -29,6 +32,12 @@ export interface CheckResult {
   evidence: string[];
   /** Why this matters for AI search */
   why: string;
+  /** How bad a failure here is (a crawler blocker is critical; missing OG tags is low). */
+  severity: Severity;
+  /** How sure we are of the result, given how it was tested. */
+  confidence: Confidence;
+  /** How this check was performed, in one sentence. */
+  method: string;
   fix?: Fix;
 }
 
@@ -79,6 +88,8 @@ export interface AuditContext {
     body: string;
   };
   botFetches: BotFetch[];
+  /** /about and /contact probed directly when the page doesn't link them (URL if it responded 200). */
+  trustProbe?: { checked?: boolean; about?: string; contact?: string };
 }
 
 export interface AuditResult {
@@ -91,6 +102,8 @@ export interface AuditResult {
   durationMs: number;
   score: number;
   grade: string;
+  /** Score = earned / applicable points. N/A and inconclusive checks are excluded. */
+  scoring?: { earned: number; applicable: number; scored: number; excluded: string[] };
   groups: GroupScore[];
   checks: CheckResult[];
   site: {

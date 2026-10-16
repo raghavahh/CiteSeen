@@ -145,7 +145,10 @@ describe("full audit", () => {
       }),
     );
     const r = await runAudit("citeseen.pages.dev");
-    const lost = r.checks.filter((c) => c.earned < c.points).map((c) => `${c.id}: ${c.summary}`);
+    const lost = r.checks.filter((c) => c.status !== "na" && c.earned < c.points).map((c) => `${c.id}: ${c.summary}`);
+    // Freshness doesn't apply to a homepage, so it's excluded from the denominator.
+    expect(r.checks.find((c) => c.id === "freshness")!.status).toBe("na");
+    expect(r.scoring!.applicable).toBe(95);
     // sameAs needs real social profile URLs, which only the owner can add.
     expect(lost).toEqual([expect.stringMatching(/^same-as/)]);
     expect(r.score).toBe(95);
@@ -172,7 +175,10 @@ describe("full audit", () => {
     const r = await runAudit("https://shop.example/");
     const byId = Object.fromEntries(r.checks.map((c) => [c.id, c]));
 
-    expect(byId["robots-search-bots"].earned).toBe(10);
+    // 5 scored search crawlers (ChatGPT-User is user-triggered and only reported): 4/5 of 12
+    expect(byId["robots-search-bots"].earned).toBe(9.6);
+    expect(byId["robots-search-bots"].severity).toBe("critical");
+    expect(byId["firewall-test"].confidence).toBe("medium");
     expect(byId["robots-search-bots"].summary).toContain("PerplexityBot");
     expect(byId["firewall-test"].status).toBe("warn");
     expect(byId["firewall-test"].fix!.steps!.join(" ")).toContain("Cloudflare");

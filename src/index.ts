@@ -194,6 +194,33 @@ async function handleAudit(req: Request, env: Env, ctx: ExecutionContext): Promi
   const limited = await rateLimit(env, `audit:${clientIp(req)}`, Number(env.RATE_LIMIT_PER_HOUR || 30));
   if (limited) return limited;
 
+  // Live progress: stream real stage events as NDJSON when the client asks for it.
+  if ((req.headers.get("accept") || "").includes("application/x-ndjson")) {
+    const { readable, writable } = new TransformStream();
+    const w = writable.getWriter();
+    const enc = new TextEncoder();
+    const send = (o: unknown) => w.write(enc.encode(JSON.stringify(o) + "\n")).catch(() => {});
+    ctx.waitUntil(
+      (async () => {
+        try {
+          const r = await runAudit(b.url!, { onStage: (stage, done) => void send({ type: "stage", stage, done }) });
+          r.id = newId(10);
+          await env.KV.put(`audit:${r.id}`, JSON.stringify(r), { expirationTtl: RESULT_TTL });
+          await env.KV.put(cacheKey, r.id, { expirationTtl: CACHE_TTL });
+          await send({ type: "result", id: r.id, score: r.score });
+          await bumpCounter(env, "stats:audits");
+        } catch (e) {
+          const msg = e instanceof AuditError || e instanceof UnsafeUrlError ? e.message : "Something went wrong on our side. Please try again.";
+          if (!(e instanceof AuditError)) console.error(e);
+          await send({ type: "error", error: msg, code: e instanceof AuditError ? e.code : "server" });
+        } finally {
+          await w.close().catch(() => {});
+        }
+      })(),
+    );
+    return new Response(readable, { headers: { "content-type": "application/x-ndjson; charset=utf-8", "cache-control": "no-store" } });
+  }
+
   let result: AuditResult;
   try {
     result = await runAudit(b.url);

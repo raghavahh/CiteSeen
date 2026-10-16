@@ -1,7 +1,7 @@
 // The v0.1 audit checks. Rule-based, zero cost per audit. Weights add up to 100 (PRD "Audit checks").
 // Every check reports its evidence so the score is fully explainable.
 
-import { BOTS, SCORED_SEARCH_BOTS, getBot } from "./bots.ts";
+import { BOTS, REPORTED_USER_BOTS, SCORED_SEARCH_BOTS, getBot } from "./bots.ts";
 import { findSchemaNodes } from "./html.ts";
 import { isAllowed, type ParsedRobots } from "./robots.ts";
 import {
@@ -21,9 +21,31 @@ import {
   trimTo,
   trimToSentence,
 } from "./siteinfo.ts";
-import type { AuditContext, CheckResult, CheckStatus, GroupId } from "./types.ts";
+import type { AuditContext, CheckResult, CheckStatus, Confidence, GroupId, Severity } from "./types.ts";
 
 type CheckFn = (ctx: AuditContext) => CheckResult;
+
+/** Severity if the check fails, how confident the method is, and how it was tested. */
+const META: Record<string, { severity: Severity; confidence: Confidence; method: string }> = {
+  "robots-search-bots": { severity: "critical", confidence: "high", method: "Parsed robots.txt with RFC 9309 matching for each AI search crawler." },
+  "firewall-test": { severity: "high", confidence: "medium", method: "Simulation: requested the page with AI-crawler user agents from our servers and compared with a browser request. Real crawlers come from their own IPs, so results may differ." },
+  "js-content": { severity: "high", confidence: "medium", method: "Counted visible text in the raw HTML, without running JavaScript." },
+  noindex: { severity: "critical", confidence: "high", method: "Read meta robots tags and the X-Robots-Tag header." },
+  sitemap: { severity: "low", confidence: "high", method: "Fetched the sitemap listed in robots.txt or /sitemap.xml." },
+  "https-status": { severity: "medium", confidence: "high", method: "Followed redirects from the submitted URL and recorded each hop." },
+  "org-schema": { severity: "medium", confidence: "high", method: "Parsed JSON-LD blocks on the page." },
+  "same-as": { severity: "low", confidence: "high", method: "Read sameAs in Organization JSON-LD (homepage only)." },
+  "page-type-schema": { severity: "low", confidence: "medium", method: "Detected the page type from its content, then looked for matching JSON-LD." },
+  "title-meta": { severity: "medium", confidence: "high", method: "Read the title and meta description." },
+  structure: { severity: "low", confidence: "high", method: "Read headings, lang and canonical from the HTML." },
+  "open-graph": { severity: "low", confidence: "high", method: "Read Open Graph meta tags." },
+  "answer-first": { severity: "medium", confidence: "medium", method: "Looked for question headings, lists and tables in the raw HTML." },
+  "text-depth": { severity: "medium", confidence: "medium", method: "Counted words of readable text in the raw HTML." },
+  freshness: { severity: "low", confidence: "medium", method: "Looked for visible dates and dateModified/datePublished (articles and Q&A pages only)." },
+  "trust-pages": { severity: "low", confidence: "medium", method: "Looked for About/Contact links on the page, then checked /about and /contact directly." },
+  "llms-txt": { severity: "info", confidence: "high", method: "Fetched /llms.txt." },
+  "training-bots": { severity: "info", confidence: "high", method: "Parsed robots.txt rules for AI training crawlers." },
+};
 
 function result(
   base: { id: string; group: GroupId; title: string; points: number; why: string },
@@ -32,10 +54,27 @@ function result(
   evidence: string[],
   fix?: CheckResult["fix"],
   status?: CheckStatus,
+  confidence?: Confidence,
 ): CheckResult {
   const e = Math.max(0, Math.min(base.points, Math.round(earned * 10) / 10));
   const s: CheckStatus = status ?? (base.points === 0 ? "info" : e >= base.points ? "pass" : e === 0 ? "fail" : "warn");
-  return { ...base, earned: e, status: s, summary, evidence, fix: s === "pass" ? undefined : fix };
+  const meta = META[base.id] ?? { severity: "medium" as Severity, confidence: "medium" as Confidence, method: "" };
+  const counted = s !== "na" && s !== "inconclusive";
+  return {
+    ...base,
+    ...meta,
+    ...(confidence ? { confidence } : {}),
+    earned: counted ? e : 0,
+    status: s,
+    summary,
+    evidence,
+    fix: s === "pass" || s === "na" ? undefined : fix,
+  };
+}
+
+/** A check that doesn't apply to this kind of page. It's excluded from the score. */
+function notApplicable(base: Parameters<typeof result>[0], summary: string, evidence: string[]): CheckResult {
+  return result(base, 0, summary, evidence, undefined, "na");
 }
 
 function pagePath(ctx: AuditContext): string {
@@ -94,8 +133,14 @@ export const robotsSearchBots: CheckFn = (ctx) => {
       evidence.push(`✗ ${token}: blocked by line ${d.rule?.line} "Disallow: ${d.rule?.path}" in group "${d.matchedAgent}"`);
     }
   }
-  if (!blocked.length) return result(base, earned, "All 6 AI search bots can crawl this page.", evidence);
-  return result(base, earned, `${blocked.length} of 6 AI search bots are blocked: ${blocked.join(", ")}.`, evidence, {
+  // User-triggered fetchers don't decide search inclusion (e.g. OpenAI: OAI-SearchBot does), so report only.
+  for (const token of REPORTED_USER_BOTS) {
+    const d = isAllowed(r.parsed, token, path);
+    evidence.push(`${d.allowed ? "i" : "!"} ${token} (user-triggered, not scored): ${d.allowed ? "allowed" : `blocked by line ${d.rule?.line}`}`);
+  }
+  const n = SCORED_SEARCH_BOTS.length;
+  if (!blocked.length) return result(base, earned, `All ${n} AI search crawlers can crawl this page.`, evidence);
+  return result(base, earned, `${blocked.length} of ${n} AI search crawlers are blocked: ${blocked.join(", ")}.`, evidence, {
     title: "Replace your robots.txt with this corrected version",
     steps: [
       "This keeps your existing rules for other crawlers and your private paths, and explicitly allows AI search bots.",
@@ -200,6 +245,12 @@ export const firewallTest: CheckFn = (ctx) => {
   const evidence = [`Normal browser: status ${ctx.page.status}, ${browserWords} words`];
   if (!ctx.botFetches.length) {
     return result(base, base.points, "Live bot test was skipped.", evidence, undefined, "info");
+  }
+  if (ctx.botFetches.every((f) => f.error && !f.status)) {
+    return result(base, 0, "Inconclusive: none of our simulated AI-crawler requests got a response.", [
+      ...evidence,
+      ...ctx.botFetches.map((f) => `? ${f.token}: ${f.error}`),
+    ], undefined, "inconclusive", "low");
   }
   const per = base.points / ctx.botFetches.length;
   let earned = 0;
@@ -551,6 +602,9 @@ export const sameAsCheck: CheckFn = (ctx) => {
     points: 5,
     why: "sameAs links prove your social profiles, directory listings and Wikipedia page belong to the same entity. AI engines use them to trust and identify you.",
   };
+  if (new URL(ctx.finalUrl).pathname.replace(/\/+$/, "") !== "") {
+    return notApplicable(base, "Not applicable: sameAs belongs on the homepage's Organization schema.", ["Audited URL is not the homepage."]);
+  }
   const fromSchema = schemaSameAs(ctx);
   const onPage = socialLinks(ctx);
   const evidence = [
@@ -591,6 +645,11 @@ export const pageTypeSchema: CheckFn = (ctx) => {
   };
   const found = ctx.html.schemaTypes.filter((t) => PAGE_TYPES.some((p) => p.toLowerCase() === t.toLowerCase()));
   const kind = guessPageKind(ctx);
+  if (!found.length && kind === "generic") {
+    return notApplicable(base, "Not applicable: no specific page type (product, article, FAQ, local business, software) was detected, so we don't recommend page-type schema.", [
+      "Detected page type: general page",
+    ]);
+  }
   const evidence = [
     found.length ? `✓ Found: ${found.join(", ")}` : "✗ No page-type schema found",
     `This page looks like: ${kindLabel(kind)}`,
@@ -972,6 +1031,12 @@ export const freshness: CheckFn = (ctx) => {
   };
   const evidence: string[] = [];
   let earned = 0;
+  const kind = guessPageKind(ctx);
+  if (kind !== "article" && kind !== "faq") {
+    return notApplicable(base, "Not applicable: dates matter most on articles and Q&A content, and this looks like a different page type.", [
+      `Detected page type: ${kind}`,
+    ]);
+  }
   const visible = ctx.html.timeElements[0] || ctx.html.text.match(DATE_TEXT)?.[0] || ctx.html.text.match(DATE_ANY)?.[0];
   if (visible) {
     earned += 2.5;
@@ -1024,20 +1089,29 @@ export const trustPages: CheckFn = (ctx) => {
     (/"author"\s*:/.test(ctx.html.rawLower) ? "author in schema" : "");
   let earned = 0;
   const evidence: string[] = [];
+  const probe = ctx.trustProbe ?? {};
   if (about) {
     earned += 2;
     evidence.push(`✓ About link: ${about.href}`);
-  } else evidence.push("✗ No link to an About page");
+  } else if (probe.about) {
+    earned += 1;
+    evidence.push(`~ ${probe.about} exists but isn't linked from this page`);
+  } else evidence.push("? No About link on this page, and /about didn't respond (it may live at another URL)");
   if (contact) {
     earned += 2;
     evidence.push(`✓ Contact: ${contact.href}`);
-  } else evidence.push("✗ No Contact link, email or phone");
+  } else if (probe.contact) {
+    earned += 1;
+    evidence.push(`~ ${probe.contact} exists but isn't linked from this page`);
+  } else evidence.push("? No Contact link, email or phone on this page, and /contact didn't respond");
   if (author) {
     earned += 1;
     evidence.push(`✓ Author info: ${trimTo(String(author), 60)}`);
-  } else evidence.push("✗ No author or team info");
-  const missing = [!about && "About page", !contact && "Contact page", !author && "author/team info"].filter(Boolean);
-  return result(base, earned, earned === 5 ? "About, Contact and author info are linked." : `Missing: ${missing.join(", ")}.`, evidence, {
+  } else evidence.push("? No author or team info detected on this page");
+  const missing = [!about && "About link", !contact && "Contact link", !author && "author/team info"].filter(Boolean);
+  // We only see one page, so "not detected" is weaker evidence than a confirmed absence.
+  const confidence = missing.length && !probe.checked ? "low" : "medium";
+  return result(base, earned, earned === 5 ? "About, Contact and author info are linked." : `Not detected on this page: ${missing.join(", ")}.`, evidence, {
     title: "Page checklist",
     steps: [
       !about ? "Create an About page: who runs the business, since when, where, credentials, and link it from the main menu or footer." : "",
@@ -1045,7 +1119,7 @@ export const trustPages: CheckFn = (ctx) => {
       !author ? "Name the people behind your content. Add an author line with a link to a bio, and add <meta name=\"author\" content=\"Full Name\">." : "",
       "Keep the business name, address and phone identical across your site and profiles.",
     ].filter(Boolean),
-  });
+  }, undefined, confidence);
 };
 
 // ============================================================ Info only (0)
