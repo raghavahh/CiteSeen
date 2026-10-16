@@ -10,7 +10,7 @@ crons = ["17 * * * *"]
 
 [[kv_namespaces]]
 binding = "KV"
-id = "f8ed2f2708cb48c58eaaf4a914776593"
+id = "30cc94d8e5f34e32b5398be17c632f79"
 
 [[d1_databases]]
 binding = "DB"

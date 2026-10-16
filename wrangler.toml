@@ -9,7 +9,7 @@ compatibility_flags = ["nodejs_compat"]
 # Shared audit results (30-day TTL), waitlist signups and per-IP rate-limit counters.
 [[kv_namespaces]]
 binding = "KV"
-id = "f8ed2f2708cb48c58eaaf4a914776593"
+id = "30cc94d8e5f34e32b5398be17c632f79"
 
 [vars]
 SITE_URL = "https://citeseen.pages.dev"
