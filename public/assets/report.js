@@ -1,8 +1,26 @@
 // Shared audit report renderer: public /r/<id> page, dashboard, and white-label print view.
 (function () {
   const esc = (s) => window.CR.esc(s);
-  const ICON = { pass: "✓", warn: "!", fail: "✕", info: "i" };
-  const LABEL = { pass: "Pass", warn: "Needs work", fail: "Fail", info: "Info" };
+  const ICON = { pass: "✓", warn: "!", fail: "✕", info: "i", na: "–", inconclusive: "?" };
+  const LABEL = { pass: "Pass", warn: "Needs work", fail: "Fail", info: "Info", na: "Not applicable", inconclusive: "Inconclusive" };
+  /** Plain-language finding category from status + severity + confidence. */
+  function category(c) {
+    if (c.status === "na") return ["na", "Not applicable"];
+    if (c.status === "inconclusive") return ["inconclusive", "Inconclusive"];
+    if (c.status === "info") return ["info", "Informational"];
+    if (c.status === "pass") return ["pass", "Passed"];
+    if (c.status === "fail" && c.confidence === "high" && (c.severity === "critical" || c.severity === "high")) return ["fail", "Confirmed issue"];
+    if (c.confidence === "low") return ["warn", "Possible issue"];
+    return [c.severity === "critical" || c.severity === "high" ? "fail" : "warn", c.severity === "low" ? "Improvement opportunity" : "Issue"];
+  }
+  const VERIFY = {
+    "robots-search-bots": "Re-run the audit, or open the AI crawler checker for this URL.",
+    "firewall-test": "Search your firewall or CDN logs for the bot's user agent and check the response status.",
+    "js-content": "Open the page in What AI bots see and confirm the main text appears.",
+    noindex: "View the page source and response headers; re-run the audit.",
+    "org-schema": "Paste the page URL into validator.schema.org.",
+    "page-type-schema": "Paste the page URL into validator.schema.org.",
+  };
   const GROUP_NAMES = { reach: "Can AI reach it?", understand: "Can AI understand it?", quote: "Will AI quote it?", info: "Info only (not scored)" };
   const fmt = (n) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
   const scoreColor = (s) => (s >= 75 ? "var(--pass)" : s >= 50 ? "var(--warn)" : "var(--fail)");
@@ -33,18 +51,28 @@
   }
 
   function checkHtml(c, openFailing) {
-    const pts = c.points ? `${fmt(c.earned)} / ${c.points} pts` : "0 pts";
+    const excluded = c.status === "na" || c.status === "inconclusive";
+    const pts = excluded ? "excluded" : c.points ? `${fmt(c.earned)} / ${c.points} pts` : "0 pts";
     const open = openFailing && (c.status === "fail" || c.status === "warn");
+    const [cls, label] = category(c);
+    const tags = `<div class="meta-row"><span class="pill ${cls}">${label}</span>${c.severity && c.severity !== "info" && !excluded && c.status !== "pass" ? `<span class="sev ${esc(c.severity)}">${esc(c.severity)}</span>` : ""}${c.confidence ? `<span class="small muted">Confidence: ${esc(c.confidence)}</span>` : ""}</div>`;
+    const verify = VERIFY[c.id];
     return `<details class="check ${c.status}" id="check-${esc(c.id)}"${open ? " open" : ""}>
-      <summary><span class="icon" aria-label="${LABEL[c.status]}">${ICON[c.status]}</span>
-        <span><div class="t">${esc(c.title)}</div><div class="s">${esc(c.summary)}</div></span><span class="pts">${pts}</span></summary>
-      <div class="body"><p class="why small">${esc(c.why)}</p>
-        <ul class="evidence" aria-label="Evidence">${c.evidence.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>${fixHtml(c.fix)}</div>
+      <summary><span class="icon" aria-label="${LABEL[c.status] || c.status}">${ICON[c.status] || "?"}</span>
+        <span><div class="t">${esc(c.title)}</div><div class="s">${esc(c.summary)}</div>${tags}</span><span class="pts">${pts}</span></summary>
+      <div class="body">
+        ${c.method ? `<p class="small" style="margin:0 0 6px"><b>What we checked:</b> <span class="muted">${esc(c.method)}</span></p>` : ""}
+        <p class="small" style="margin:0 0 4px"><b>What we observed:</b></p>
+        <ul class="evidence" aria-label="Evidence">${c.evidence.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>
+        <p class="small"><b>Why it matters:</b> <span class="muted">${esc(c.why)}</span></p>
+        ${fixHtml(c.fix)}
+        ${verify && !excluded && c.status !== "pass" ? `<p class="small" style="margin-top:10px"><b>How to verify:</b> <span class="muted">${esc(verify)}</span></p>` : ""}
+      </div>
     </details>`;
   }
 
   function priorityList(r) {
-    return r.checks.filter((c) => c.points > 0 && c.earned < c.points).sort((a, b) => b.points - b.earned - (a.points - a.earned)).slice(0, 3);
+    return r.checks.filter((c) => c.points > 0 && c.earned < c.points && c.status !== "na" && c.status !== "inconclusive").sort((a, b) => b.points - b.earned - (a.points - a.earned)).slice(0, 3);
   }
 
   function groupBars(r) {
@@ -90,7 +118,7 @@
         })
         .join("")}
       <div class="card" style="margin-top:28px"><h2 style="font-size:1.15rem">How this score works</h2>
-        <p class="small muted" style="margin:0">The Readiness score is the sum of 16 rule-based checks on the live page: reach (40 points), understanding (35) and quotability (25). Every point shows the evidence that produced it. Training-bot blocking and llms.txt are reported but don't change the score. The firewall test sends requests with AI-bot user agents; some firewalls verify real bots by IP address, so a "possible block" should be confirmed in firewall logs. Engine v${esc(r.version)}.</p>
+        <p class="small muted" style="margin:0">The Readiness score is a technical audit, not a measurement of AI citations. It is the points earned divided by the points that apply to this page${r.scoring ? ` (${fmt(r.scoring.earned)} of ${r.scoring.applicable})` : ""}: reach (40), understanding (35) and quotability (25). Checks marked not applicable or inconclusive are excluded rather than counted as failures. Training-bot rules and llms.txt are reported but never scored. The firewall result is a simulation from our servers, so treat a possible block as something to confirm in your logs. Engine v${esc(r.version)} · audited ${esc(new Date(r.fetchedAt).toLocaleDateString(undefined, { dateStyle: "medium" }))}.</p>
       </div>`;
   }
 
@@ -98,13 +126,17 @@
 
   // ---------------------------------------------------------------- public /r/<id> page
   const root = document.getElementById("report");
-  const id = (location.pathname.match(/^\/r\/([A-Za-z0-9]{8,16})/) || [])[1];
+  const isSample = location.pathname === "/sample";
+  const id = isSample ? "sample" : (location.pathname.match(/^\/r\/([A-Za-z0-9]{8,16})/) || [])[1];
   if (!root || !id) return;
 
   window.CR.get("/api/audit/" + id)
     .then((r) => {
       document.title = `${r.host}: ${r.score}/100 AI search audit – CiteSeen`;
       root.innerHTML =
+        (isSample
+          ? `<div class="notice info" style="margin-top:24px"><span class="sample-tag">Sample report</span> A real, live audit of CiteSeen's own homepage, refreshed daily. Run your own audit to see your site.</div>`
+          : "") +
         renderReport(r, {
           toolbar: `<div class="toolbar">
             <button class="btn sm" type="button" id="share">Copy share link</button>

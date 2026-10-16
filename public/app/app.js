@@ -345,13 +345,13 @@
       <div class="grid-2" style="align-items:start"><div class="card"><form id="brand-form">
         <div class="field"><label for="b-name">Agency name</label><input id="b-name" name="name" value="${esc(b.name)}" maxlength="80" placeholder="Bright Pixel Agency"></div>
         <div class="field"><label for="b-logo">Logo URL</label><input id="b-logo" name="logo" value="${esc(b.logo)}" placeholder="https://youragency.com/logo.png"><div class="hint">An https:// link to a PNG, JPG or SVG.</div></div>
-        <div class="field"><label for="b-color">Brand colour</label><input id="b-color" name="color" type="text" value="${esc(b.color)}" pattern="#[0-9a-fA-F]{6}" placeholder="#2563EB"></div>
+        <div class="field"><label for="b-color">Brand colour</label><input id="b-color" name="color" type="text" value="${esc(b.color)}" pattern="#[0-9a-fA-F]{6}" placeholder="#315CEB"></div>
         <div class="field"><label for="b-foot">Report footer</label><input id="b-foot" name="footer" value="${esc(b.footer)}" maxlength="200" placeholder="Prepared by Bright Pixel · hello@brightpixel.co"></div>
         <button class="btn" type="submit">Save branding</button></form></div>
         <div><div class="small muted" style="margin-bottom:8px;font-weight:700">Live preview</div><div class="brand-preview" id="bp"></div></div></div>`, "White-label");
     const f = document.getElementById("brand-form");
     const preview = () => {
-      const color = /^#[0-9a-fA-F]{6}$/.test(f.color.value) ? f.color.value : "#2563EB";
+      const color = /^#[0-9a-fA-F]{6}$/.test(f.color.value) ? f.color.value : "#315CEB";
       const logo = /^https:\/\//.test(f.logo.value) ? `<img src="${esc(f.logo.value)}" alt="">` : "";
       document.getElementById("bp").innerHTML = `<div class="bp-head" style="background:${color}">${logo}<div><b>${esc(f.name.value || "Your agency")}</b><div class="small" style="opacity:.85">AI search readiness report</div></div></div><div style="padding:18px 20px"><div class="small muted">Client</div><b>yourclient.com</b><div class="track" style="margin:12px 0 6px"><i style="width:82%;background:${color}"></i></div><div class="small muted">${esc(f.footer.value || "Prepared for your client")}</div></div>`;
     };
@@ -378,7 +378,7 @@
       const rz = new window.Razorpay({
         key: o.keyId, amount: o.amount, currency: o.currency, order_id: o.orderId, name: "CiteSeen",
         description: kind === "report" ? "White-label report credit" : kind === "pro_month" ? "Pro · 1 month" : "Plus · 1 month",
-        prefill: { name: o.name, email: o.email }, theme: { color: "#2563EB" },
+        prefill: { name: o.name, email: o.email }, theme: { color: "#315CEB" },
         handler: async (resp) => { try { await call("POST", "/api/billing/razorpay/verify", resp); resolve(); } catch (e) { reject(e); } },
         modal: { ondismiss: () => reject(new Error("Payment cancelled")) },
       });
@@ -427,7 +427,7 @@
     crumbs.innerHTML = `<a href="/app">Overview</a> / Report`;
     const d = await get(`/api/reports/${auditId}`);
     const r = d.audit, b = d.brand;
-    const color = /^#[0-9a-fA-F]{6}$/.test(b.color) ? b.color : "#2563EB";
+    const color = /^#[0-9a-fA-F]{6}$/.test(b.color) ? b.color : "#315CEB";
     const date = new Date(r.fetchedAt).toLocaleDateString(undefined, { dateStyle: "long" });
     const head = d.whiteLabel
       ? `<div class="wl-head" style="background:${color}"><div>${b.logo ? `<img src="${esc(b.logo)}" alt="${esc(b.name)}">` : `<b style="font-size:1.3rem">${esc(b.name || "Your agency")}</b>`}<div class="small" style="opacity:.9;margin-top:6px">AI search readiness report · ${esc(date)}</div></div><div style="text-align:right"><div class="small" style="opacity:.85">Prepared for</div><b>${esc(r.site.name || r.host)}</b></div></div>`

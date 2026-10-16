@@ -48,6 +48,7 @@ const ID = "([A-Za-z0-9]{8,16})";
 const ROUTES: [string, RegExp, Handler][] = [
   // Public audit + tools (v0.1)
   ["POST", /^\/api\/audit$/, (req, env, ctx) => handleAudit(req, env, ctx)],
+  ["GET", /^\/api\/audit\/sample$/, (_req, env) => sampleResult(env)],
   ["GET", new RegExp(`^/api/audit/${ID}$`), (_req, env, _c, [id]) => getResult(id, env)],
   ["POST", /^\/api\/waitlist$/, (req, env) => handleWaitlist(req, env)],
   ["POST", /^\/api\/tools\/crawlers$/, (req, env) => tool(req, env, "crawlers", crawlerCheck)],
@@ -110,7 +111,7 @@ export async function route(req: Request, env: Env, ctx: ExecutionContext): Prom
     }
 
     // Shareable result page: /r/<id> serves the report shell, which loads /api/audit/<id>
-    if (/^\/r\/[A-Za-z0-9]{8,16}\/?$/.test(path)) return shell(env, req, "/report");
+    if (/^\/r\/[A-Za-z0-9]{8,16}\/?$/.test(path) || path === "/sample") return shell(env, req, "/report");
 
     // Dashboard SPA: every /app/* path serves the app shell; signed-out visitors go to /login
     if (path === "/app" || path.startsWith("/app/")) {
@@ -236,6 +237,21 @@ async function handleAudit(req: Request, env: Env, ctx: ExecutionContext): Promi
   await env.KV.put(`audit:${result.id}`, payload, { expirationTtl: RESULT_TTL });
   ctx.waitUntil(Promise.all([env.KV.put(cacheKey, result.id, { expirationTtl: CACHE_TTL }), bumpCounter(env, "stats:audits")]));
   return new Response(payload, { headers: jsonHeaders() });
+}
+
+/** Sample report: a real audit of our own homepage, refreshed at most daily. */
+async function sampleResult(env: Env): Promise<Response> {
+  const cached = await env.KV.get("audit:sample");
+  if (cached) return new Response(cached, { headers: jsonHeaders({ "cache-control": "public, max-age=600" }) });
+  try {
+    const r = await runAudit(env.SITE_URL);
+    r.id = "sample";
+    const payload = JSON.stringify(r);
+    await env.KV.put("audit:sample", payload, { expirationTtl: 86_400 });
+    return new Response(payload, { headers: jsonHeaders() });
+  } catch {
+    return json({ error: "The sample report isn't available right now. Run your own audit instead." }, 503);
+  }
 }
 
 async function getResult(id: string, env: Env): Promise<Response> {
